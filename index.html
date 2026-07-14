@@ -61,6 +61,31 @@ input,select,textarea,.copyable-text,.whatsapp-box,.waTextArea{text-transform:no
 /* === KAYITLI SINAVA ÖĞRENCİ EKLEME === */
 .locked-exam-box{border:1px solid #bfdbfe;background:#eff6ff;border-radius:14px;padding:11px;color:#1e3a8a;line-height:1.45;font-size:12px;text-transform:none}.locked-exam-box b{color:#172033}.append-status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0}.append-status-card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:10px}.append-status-card span{display:block;color:#64748b;font-size:11px;font-weight:900}.append-status-card b{display:block;font-size:20px;margin-top:2px}.append-control-stack{display:grid;gap:6px;min-width:190px}.append-warning{border-left:4px solid #d97706;background:#fff7ed;border-radius:10px;padding:8px 10px;color:#9a3412;font-size:12px;text-transform:none}.append-error{border-left:4px solid #dc2626;background:#fff1f2;border-radius:10px;padding:8px 10px;color:#991b1b;font-size:12px;text-transform:none}.append-ok{border-left:4px solid #15803d;background:#f0fdf4;border-radius:10px;padding:8px 10px;color:#166534;font-size:12px;text-transform:none}.locked-field{opacity:.72;background:#f8fafc!important;cursor:not-allowed}.append-table select,.append-table input{min-width:140px}.append-table td{vertical-align:top}.append-note-list{display:grid;gap:5px}.append-note-list div{font-size:11px;color:#64748b;text-transform:none}
 
+
+/* === GELİŞMİŞ RAPOR FİLTRELEME VE PDF === */
+.advanced-filter-panel{border:1px solid #cbd5e1;border-radius:18px;background:linear-gradient(135deg,#f8fbff,#ffffff);padding:14px;margin:0 0 14px;text-transform:none}
+.advanced-filter-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.advanced-filter-title{font-size:15px;font-weight:950;color:#0f172a}
+.advanced-filter-sub{font-size:12px;color:#64748b;margin-top:3px}
+.advanced-filter-grid{display:grid;grid-template-columns:minmax(210px,1.2fr) minmax(210px,1fr);gap:10px}
+.advanced-class-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:8px;margin-top:10px}
+.advanced-class-item{display:flex;align-items:center;gap:8px;border:1px solid #dbe3ef;background:#fff;border-radius:12px;padding:9px 10px;font-size:12px;font-weight:850;color:#334155}
+.advanced-class-item input{width:auto;margin:0}
+.advanced-filter-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:10px}
+.advanced-filter-actions-left,.advanced-filter-actions-right{display:flex;gap:8px;flex-wrap:wrap}
+.filter-summary-badge{display:inline-flex;align-items:center;border-radius:999px;padding:7px 10px;background:#e0f2fe;color:#075985;border:1px solid #bae6fd;font-size:12px;font-weight:900}
+.filter-summary-badge.multi{background:#ede9fe;color:#5b21b6;border-color:#ddd6fe}
+.filter-summary-badge.single{background:#dcfce7;color:#166534;border-color:#bbf7d0}
+.filter-summary-badge.none{background:#fee2e2;color:#991b1b;border-color:#fecaca}
+.report-rank{display:inline-flex;align-items:center;justify-content:center;min-width:27px;height:27px;border-radius:999px;background:#eaf2ff;color:#1d4ed8;font-weight:950}
+.qa-modal-box{width:min(1220px,100%);max-height:94vh;overflow:auto;background:#fff;border:1px solid #dbe3ef;border-radius:22px;box-shadow:0 24px 70px rgba(15,23,42,.28);padding:18px;text-transform:none}
+.qa-modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.qa-modal-header h3{margin:0;font-size:19px;color:#0f172a}
+.qa-close{background:#e9eef7;color:#1f2937;min-width:42px;padding:9px 12px}
+.qa-analysis-area{margin-top:14px}
+.pdf-button{background:linear-gradient(135deg,#0f766e,#0d9488)}
+@media(max-width:900px){.advanced-filter-grid{grid-template-columns:1fr}.advanced-filter-actions{align-items:stretch;flex-direction:column}.advanced-filter-actions-left,.advanced-filter-actions-right{width:100%}.advanced-filter-actions button{flex:1}.qa-modal-box{padding:13px}}
+
 </style>
 </head>
 <body>
@@ -145,6 +170,8 @@ input,select,textarea,.copyable-text,.whatsapp-box,.waTextArea{text-transform:no
 </section>
 </main>
 <div class="toast" id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js"></script>
 <script type="module">
 
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -426,9 +453,442 @@ saveExam=async function(){if(!isAppendMode())return __appendBaseSaveExam();const
 const __appendBaseInitExtraUi=initExtraUi;
 initExtraUi=function(){__appendBaseInitExtraUi();const mode=$("examOperationMode");if(mode&&!mode.dataset.bound){mode.dataset.bound="1";mode.addEventListener("change",()=>{resetExamReader();fillAppendExamSelect();applyAppendModeUi();renderExamPreview()})}const target=$("examTargetExam");if(target&&!target.dataset.bound){target.dataset.bound="1";target.addEventListener("change",()=>{resetExamReader();applyAppendModeUi();renderExamPreview()})}const quick=$("appendToExamBtn");if(quick&&!quick.dataset.bound){quick.dataset.bound="1";quick.addEventListener("click",()=>{const id=$("reportExam")?.value||activeExamId;if(!id)return toast("Önce sınav seçin.");const exam=state.exams?.[id];if(!exam)return toast("Sınav bulunamadı.");activeSchoolId=exam.schoolId;localStorage.setItem("optikokuma_active_school",activeSchoolId);$("examSchool").value=exam.schoolId;$("examOperationMode").value="append";fillAppendExamSelect(id);$("examTargetExam").value=id;setTab("exam");applyAppendModeUi();renderExamPreview()})}document.addEventListener("change",e=>{cacheDecisionElement(e.target);if(isAppendMode()&&(e.target.classList.contains("manualStudentNo")||e.target.classList.contains("manualBooklet")))renderAppendPreview()});document.addEventListener("input",e=>cacheDecisionElement(e.target));applyAppendModeUi()}
 
+
+/* === GELİŞMİŞ RAPOR FİLTRELEME, SIRALAMA VE PDF === */
+let advancedReportExamId="";
+let advancedReportClassKeys=new Set();
+let advancedReportSort="correct_desc";
+let advancedReportSearch="";
+let advancedQuestionExamId="";
+let advancedQuestionClassKeys=new Set();
+
+function resultClassKey(res={}){
+  const id=String(res.classId||"").trim();
+  const name=String(res.className||"SINIFSIZ").trim()||"SINIFSIZ";
+  return id?`id:${id}`:`name:${cleanKey(name)||"SINIFSIZ"}`;
+}
+function reportClassOptions(examId=activeExamId){
+  const map=new Map();
+  reportResultsSorted(examId).forEach(res=>{
+    const key=resultClassKey(res);
+    if(!map.has(key))map.set(key,{key,label:String(res.className||"Sınıfsız").trim()||"Sınıfsız"});
+  });
+  return [...map.values()].sort((a,b)=>a.label.localeCompare(b.label,"tr",{numeric:true}));
+}
+function syncClassSelection(examId,setRef,mode="report"){
+  const options=reportClassOptions(examId);
+  const keys=new Set(options.map(x=>x.key));
+  const examChanged=mode==="report"?advancedReportExamId!==examId:advancedQuestionExamId!==examId;
+  if(examChanged){
+    setRef.clear();
+    options.forEach(x=>setRef.add(x.key));
+    if(mode==="report")advancedReportExamId=examId;
+    else advancedQuestionExamId=examId;
+  }else{
+    [...setRef].forEach(k=>{if(!keys.has(k))setRef.delete(k)});
+  }
+  return options;
+}
+function classSelectionInfo(options=[],selectedSet=new Set()){
+  const chosen=options.filter(x=>selectedSet.has(x.key));
+  let text="",kind="";
+  if(!chosen.length){text="Sınıf seçilmedi";kind="none"}
+  else if(chosen.length===1){text=`${chosen[0].label} SINIFI`;kind="single"}
+  else if(chosen.length===options.length){text=`TÜM SINAVA GİREN SINIFLAR (${chosen.map(x=>x.label).join(", ")})`;kind=""}
+  else{text=`BİRDEN FAZLA SINIF SEÇİLDİ: ${chosen.map(x=>x.label).join(", ")}`;kind="multi"}
+  return{chosen,text,kind};
+}
+function reportShowsNet(exam={}){return !!exam.showNet||exam.resultMode==="net"||exam.resultMode==="score_net"}
+function reportShowsScore(exam={}){return !!exam.showScore||exam.resultMode==="score_correct"||exam.resultMode==="score_net"}
+function reportSortLabel(mode=advancedReportSort){
+  return({
+    correct_desc:"Doğru sayısı — yüksekten düşüğe",
+    net_desc:"Net — yüksekten düşüğe",
+    score_desc:"Puan — yüksekten düşüğe",
+    success_desc:"Başarı oranı — yüksekten düşüğe",
+    class_name:"Sınıf ve öğrenci adına göre",
+    name_asc:"Öğrenci adına göre",
+    no_asc:"Öğrenci numarasına göre"
+  })[mode]||"Doğru sayısı — yüksekten düşüğe";
+}
+function resultTieSort(a,b){
+  return String(a.className||"").localeCompare(String(b.className||""),"tr",{numeric:true})
+    ||String(a.studentName||"").localeCompare(String(b.studentName||""),"tr")
+    ||Number(a.studentNo||0)-Number(b.studentNo||0);
+}
+function sortedFilteredReportResults(examId=activeExamId,selectedSet=advancedReportClassKeys,search=advancedReportSearch,sortMode=advancedReportSort){
+  const q=cleanKey(search||"");
+  let rows=reportResultsSorted(examId).filter(res=>selectedSet.has(resultClassKey(res)));
+  if(q)rows=rows.filter(res=>cleanKey(`${res.studentNo||""} ${res.studentName||""} ${res.className||""}`).includes(q));
+  const cmp={
+    correct_desc:(a,b)=>Number(b.correct||0)-Number(a.correct||0)||resultTieSort(a,b),
+    net_desc:(a,b)=>Number(b.net??-9999)-Number(a.net??-9999)||resultTieSort(a,b),
+    score_desc:(a,b)=>Number(b.score??-9999)-Number(a.score??-9999)||resultTieSort(a,b),
+    success_desc:(a,b)=>resultSuccessRate(b)-resultSuccessRate(a)||resultTieSort(a,b),
+    class_name:(a,b)=>resultTieSort(a,b),
+    name_asc:(a,b)=>String(a.studentName||"").localeCompare(String(b.studentName||""),"tr")||resultTieSort(a,b),
+    no_asc:(a,b)=>Number(a.studentNo||0)-Number(b.studentNo||0)||resultTieSort(a,b)
+  }[sortMode]||((a,b)=>resultTieSort(a,b));
+  return [...rows].sort(cmp);
+}
+function reportSortOptionsHtml(exam={}){
+  const options=[
+    ["correct_desc","Doğru sayısı — yüksekten düşüğe"],
+    ...(reportShowsNet(exam)?[["net_desc","Net — yüksekten düşüğe"]]:[]),
+    ...(reportShowsScore(exam)?[["score_desc","Puan — yüksekten düşüğe"]]:[]),
+    ["success_desc","Başarı oranı — yüksekten düşüğe"],
+    ["class_name","Sınıf ve öğrenci adına göre"],
+    ["name_asc","Öğrenci adına göre"],
+    ["no_asc","Öğrenci numarasına göre"]
+  ];
+  if(!options.some(x=>x[0]===advancedReportSort))advancedReportSort="correct_desc";
+  return options.map(([value,label])=>`<option value="${value}" ${advancedReportSort===value?"selected":""}>${esc(label)}</option>`).join("");
+}
+function advancedClassFilterHtml(options,selectedSet,prefix){
+  return options.length?options.map(opt=>`<label class="advanced-class-item"><input type="checkbox" data-${prefix}-class="${esc(opt.key)}" ${selectedSet.has(opt.key)?"checked":""}> ${esc(opt.label)}</label>`).join(""):`<div class="empty">Bu sınavda sınıf sonucu bulunamadı.</div>`;
+}
+function advancedReportToolbarHtml(exam,options,info,results){
+  return `<div class="advanced-filter-panel">
+    <div class="advanced-filter-head">
+      <div><div class="advanced-filter-title">Gelişmiş Sonuç Listesi Filtreleri</div><div class="advanced-filter-sub">Sınıf, öğrenci ve sıralama ölçütüne göre listeyi düzenleyin.</div></div>
+      <span class="filter-summary-badge ${info.kind}">${esc(info.text)}</span>
+    </div>
+    <div class="advanced-filter-grid">
+      <div><label>Öğrenci ara</label><input id="advancedReportSearch" value="${esc(advancedReportSearch)}" placeholder="Öğrenci no, ad soyad veya sınıf"></div>
+      <div><label>Sıralama ölçütü</label><select id="advancedReportSort">${reportSortOptionsHtml(exam)}</select></div>
+    </div>
+    <label>Sınıf filtresi</label>
+    <div class="advanced-class-grid">${advancedClassFilterHtml(options,advancedReportClassKeys,"report")}</div>
+    <div class="advanced-filter-actions">
+      <div class="advanced-filter-actions-left">
+        <button type="button" class="soft" data-report-class-all="1">Tüm Sınava Giren Sınıflar</button>
+        <button type="button" class="secondary" data-report-class-clear="1">Sınıf Seçimini Temizle</button>
+      </div>
+      <div class="advanced-filter-actions-right">
+        <span class="tag gray">${results.length} öğrenci listeleniyor</span>
+        <button type="button" class="pdf-button" data-report-pdf="1">Sonuç Listesini PDF İndir</button>
+      </div>
+    </div>
+  </div>`;
+}
+openReport=function(){
+  syncTeacherNameInputs();
+  activeExamId=$("reportExam")?.value||activeExamId;
+  const exam=state.exams?.[activeExamId];
+  if(!exam){
+    $("reportStats").innerHTML='<div class="empty">Sınav seçiniz.</div>';
+    $("reportTable").innerHTML='<div class="empty">Sonuç yok.</div>';
+    return;
+  }
+  const options=syncClassSelection(activeExamId,advancedReportClassKeys,"report");
+  const info=classSelectionInfo(options,advancedReportClassKeys);
+  const results=sortedFilteredReportResults();
+  const showNet=reportShowsNet(exam),showScore=reportShowsScore(exam);
+  const avgScore=showScore&&results.length?results.reduce((a,b)=>a+Number(b.score||0),0)/results.length:0;
+  const avgNet=showNet&&results.length?results.reduce((a,b)=>a+Number(b.net||0),0)/results.length:0;
+  const avgRate=results.length?results.reduce((a,b)=>a+resultSuccessRate(b),0)/results.length:0;
+  $("reportStats").innerHTML=`<div class="metric"><span>${esc(exam.subject||"Ders")} / ${esc(exam.examName||"Sınav")}</span><b>${results.length}</b><span>${esc(info.text)} | Ortalama başarı: %${avgRate.toFixed(1)}${showNet?` | Ortalama net: ${avgNet.toFixed(2)}`:""}${showScore?` | Ortalama puan: ${avgScore.toFixed(2)}`:""}</span></div><div class="simple-toolbar"><button class="soft" type="button" data-question-analysis="1">Filtreli Soru Analizi</button></div>`;
+  const extraHead=(showNet?"<th>Net</th>":"")+(showScore?"<th>Puan</th>":"");
+  const toolbar=advancedReportToolbarHtml(exam,options,info,results);
+  const table=results.length?`<div class="table-wrap simple-table"><table><thead><tr><th>Sıra</th><th><input type="checkbox" id="reportMaster"></th><th>No</th><th>Öğrenci</th><th>Sınıf</th><th>Kitapçık</th><th>D/Y/B</th><th>Başarı</th>${extraHead}<th>Optik</th><th>WhatsApp</th></tr></thead><tbody>${results.map((res,i)=>`<tr><td><span class="report-rank">${i+1}</span></td><td><input type="checkbox" class="reportCheck" value="${esc(res.resultKey)}" ${reportSelected.has(res.resultKey)?"checked":""}></td><td><b>${esc(res.studentNo)}</b>${res.mode==="guest"?" <span class='tag orange'>Misafir</span>":""}</td><td><button type="button" class="student-click" data-report-detail="${esc(res.resultKey)}">${esc(res.studentName)}</button></td><td>${esc(res.className)}</td><td><span class="tag gray">${esc(res.booklet||"")}</span></td><td>${res.correct}/${res.wrong}/${res.blank}</td><td><span class="tag ${resultSuccessRate(res)>=70?"green":resultSuccessRate(res)>=50?"orange":"red"}">%${resultSuccessRate(res)}</span></td>${showNet?`<td>${Number(res.net||0).toLocaleString("tr-TR")}</td>`:""}${showScore?`<td>${Number(res.score||0).toLocaleString("tr-TR")}</td>`:""}<td><button class="soft" type="button" data-report-detail="${esc(res.resultKey)}">Aç</button></td><td>${waLink(res,exam)}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Seçilen filtrelerde öğrenci sonucu bulunamadı.</div>`;
+  $("reportTable").innerHTML=toolbar+table;
+  $$('.reportCheck').forEach(c=>c.onchange=()=>{c.checked?reportSelected.add(c.value):reportSelected.delete(c.value)});
+  const master=$("reportMaster");
+  if(master)master.onchange=()=>{$$('.reportCheck').forEach(c=>{c.checked=master.checked;c.checked?reportSelected.add(c.value):reportSelected.delete(c.value)})};
+};
+function questionAnalysisData(results=[],exam={}){
+  const total=questionCountForExam(exam,results);
+  const rows=Array.from({length:total},(_,i)=>({no:i+1,key:"",correct:0,wrong:0,blank:0,students:[]}));
+  let usable=0;
+  results.forEach(res=>{
+    const det=questionDetails(res,exam);
+    if(!det.length)return;
+    usable++;
+    det.forEach(q=>{
+      const row=rows[q.no-1];
+      if(!row)return;
+      row.key=q.key||row.key;
+      if(q.status==="correct")row.correct++;
+      else if(q.status==="wrong"){row.wrong++;row.students.push(`${res.studentName} (Y)`)}
+      else{row.blank++;row.students.push(`${res.studentName} (B)`)}
+    });
+  });
+  rows.forEach(row=>row.success=usable?Math.round((row.correct*100)/usable):0);
+  return{total,usable,rows};
+}
+function filteredQuestionResults(){
+  return reportResultsSorted(advancedQuestionExamId).filter(res=>advancedQuestionClassKeys.has(resultClassKey(res)));
+}
+function ensureQuestionAnalysisModal(){
+  let el=$("advancedQuestionAnalysisModal");
+  if(!el){
+    el=document.createElement("div");
+    el.id="advancedQuestionAnalysisModal";
+    el.className="modal-backdrop hide";
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function renderQuestionAnalysisModalBody(){
+  const el=ensureQuestionAnalysisModal();
+  const exam=state.exams?.[advancedQuestionExamId];
+  if(!exam)return;
+  const options=syncClassSelection(advancedQuestionExamId,advancedQuestionClassKeys,"question");
+  const info=classSelectionInfo(options,advancedQuestionClassKeys);
+  const results=filteredQuestionResults();
+  const data=questionAnalysisData(results,exam);
+  const avg=data.rows.length?data.rows.reduce((a,b)=>a+b.success,0)/data.rows.length:0;
+  const body=data.usable?data.rows.map(row=>`<tr><td><b>${row.no}</b></td><td>${esc(row.key||"-")}</td><td>${row.correct}</td><td>${row.wrong}</td><td>${row.blank}</td><td><span class="tag ${row.success>=70?"green":row.success>=50?"orange":"red"}">%${row.success}</span></td><td>${esc(row.students.slice(0,8).join(", ")||"-")}${row.students.length>8?" ...":""}</td></tr>`).join(""):"";
+  el.innerHTML=`<div class="qa-modal-box">
+    <div class="qa-modal-header"><div><h3>Filtreli Soru Analizi</h3><div class="mini">${esc(exam.subject||"")} · ${esc(exam.examName||"")} · ${esc(examDateText(exam))}</div></div><button type="button" class="qa-close" data-qa-close="1">✕</button></div>
+    <div class="advanced-filter-panel">
+      <div class="advanced-filter-head"><div><div class="advanced-filter-title">Analize Dahil Edilecek Sınıflar</div><div class="advanced-filter-sub">Tüm sınava giren sınıfları veya yalnızca istediğiniz sınıfları seçebilirsiniz.</div></div><span class="filter-summary-badge ${info.kind}">${esc(info.text)}</span></div>
+      <div class="advanced-class-grid">${advancedClassFilterHtml(options,advancedQuestionClassKeys,"qa")}</div>
+      <div class="advanced-filter-actions"><div class="advanced-filter-actions-left"><button type="button" class="soft" data-qa-class-all="1">Tüm Sınava Giren Sınıflar</button><button type="button" class="secondary" data-qa-class-clear="1">Seçimi Temizle</button></div><div class="advanced-filter-actions-right"><button type="button" class="pdf-button" data-qa-pdf="1">Soru Analizini PDF İndir</button></div></div>
+    </div>
+    <div class="analysis-summary">
+      <div class="analysis-card"><span>Seçilen Sonuç</span><b>${results.length}</b></div>
+      <div class="analysis-card"><span>Analize Dahil</span><b>${data.usable}</b></div>
+      <div class="analysis-card"><span>Soru Sayısı</span><b>${data.total}</b></div>
+      <div class="analysis-card"><span>Ortalama Soru Başarısı</span><b>%${avg.toFixed(1)}</b></div>
+    </div>
+    <div class="qa-analysis-area">${data.usable?`<div class="table-wrap simple-table"><table><thead><tr><th>Soru</th><th>Doğru Cevap</th><th>Doğru</th><th>Yanlış</th><th>Boş</th><th>Başarı</th><th>Yanlış / Boş Öğrenciler</th></tr></thead><tbody>${body}</tbody></table></div>`:`<div class="no-detail">Seçilen sınıflarda soru bazlı analiz için cevap dizisi veya cevap anahtarı bulunamadı.</div>`}</div>
+    <div class="modal-actions"><button type="button" class="secondary" data-qa-close="1">Kapat</button></div>
+  </div>`;
+}
+openQuestionAnalysisModal=function(){
+  const exam=state.exams?.[activeExamId];
+  if(!exam)return toast("Sınav seçin.");
+  advancedQuestionExamId=activeExamId;
+  advancedQuestionClassKeys.clear();
+  const reportOptions=reportClassOptions(activeExamId);
+  const selected=reportOptions.filter(x=>advancedReportClassKeys.has(x.key));
+  (selected.length?selected:reportOptions).forEach(x=>advancedQuestionClassKeys.add(x.key));
+  const el=ensureQuestionAnalysisModal();
+  el.classList.remove("hide");
+  renderQuestionAnalysisModalBody();
+};
+function closeQuestionAnalysisModal(){
+  const el=$("advancedQuestionAnalysisModal");
+  if(el){el.classList.add("hide");el.innerHTML=""}
+}
+function pdfFilename(value){
+  return String(value||"rapor").trim().replace(/[\\/:*?"<>|]+/g,"-").replace(/\s+/g,"_").slice(0,120);
+}
+function ensurePdfMake(){
+  if(globalThis.pdfMake?.createPdf)return true;
+  toast("PDF bileşeni yüklenemedi. İnternet bağlantısını kontrol edin.");
+  return false;
+}
+function pdfMetaTable(exam,classText,sortText=""){
+  const rows=[
+    ["Sınav Adı",exam.examName||"Sınav"],
+    ["Sınav Tarihi",examDateText(exam)||"-"],
+    ["Ders / Konu",exam.subject||exam.subjectGroup||"-"],
+    ["Sınıf Seçimi",classText||"-"]
+  ];
+  if(sortText)rows.push(["Sıralama",sortText]);
+  return{
+    table:{widths:[72,"*"],body:rows.map(([a,b])=>[
+      {text:a,bold:true,color:"#64748b",fontSize:8,margin:[0,3,5,3]},
+      {text:String(b),bold:true,color:"#172033",fontSize:8.5,margin:[0,3,0,3]}
+    ])},
+    layout:{hLineColor:()=>"#e2e8f0",vLineColor:()=>"#e2e8f0",paddingLeft:()=>6,paddingRight:()=>6,paddingTop:()=>2,paddingBottom:()=>2}
+  };
+}
+function pdfSummaryCells(items=[]){
+  return{
+    table:{widths:items.map(()=>"*"),body:[items.map(x=>({stack:[
+      {text:x.label.toLocaleUpperCase("tr-TR"),fontSize:7.5,bold:true,color:"#64748b"},
+      {text:String(x.value),fontSize:15,bold:true,color:"#0f172a",margin:[0,3,0,0]}
+    ],fillColor:"#f8fafc",margin:[7,6,7,6]}))]},
+    layout:{hLineColor:()=>"#dbe3ef",vLineColor:()=>"#dbe3ef",paddingLeft:()=>0,paddingRight:()=>0,paddingTop:()=>0,paddingBottom:()=>0}
+  };
+}
+function pdfBaseDoc(exam,title,classText,sortText=""){
+  const school=getSchoolName(exam.schoolId)||exam.schoolName||"Okul";
+  return{
+    pageSize:"A4",
+    pageOrientation:"landscape",
+    pageMargins:[28,26,28,34],
+    defaultStyle:{font:"Roboto",fontSize:9,color:"#172033"},
+    info:{title:`${title} - ${exam.examName||"Sınav"}`,author:school,subject:exam.subject||""},
+    footer:(currentPage,pageCount)=>({
+      margin:[28,8,28,0],
+      columns:[
+        {text:`${school} · ${exam.examName||"Sınav"}`,fontSize:7.5,color:"#64748b"},
+        {text:`Sayfa ${currentPage} / ${pageCount}`,alignment:"right",fontSize:7.5,color:"#64748b"}
+      ]
+    }),
+    styles:{
+      reportTitle:{fontSize:20,bold:true,color:"#0f172a"},
+      schoolTitle:{fontSize:9,bold:true,color:"#2563eb",characterSpacing:0.6},
+      subtitle:{fontSize:9,color:"#64748b"},
+      sectionTitle:{fontSize:11,bold:true,color:"#0f172a",margin:[0,12,0,6]},
+      tableHeader:{bold:true,color:"#ffffff",fillColor:"#0f172a",fontSize:8.2,alignment:"center"}
+    },
+    content:[{
+      table:{widths:["*",250],body:[[
+        {stack:[
+          {text:school.toLocaleUpperCase("tr-TR"),style:"schoolTitle"},
+          {text:title,style:"reportTitle",margin:[0,5,0,4]},
+          {text:`${exam.subject||"Ders"} · ${exam.examName||"Sınav"}`,style:"subtitle"}
+        ],margin:[0,2,18,0]},
+        pdfMetaTable(exam,classText,sortText)
+      ]]},layout:"noBorders"
+    },{
+      table:{widths:["*"],body:[[{text:classText,bold:true,fontSize:10,color:"#075985",fillColor:"#e0f2fe",margin:[8,6,8,6]}]]},
+      layout:{hLineColor:()=>"#bae6fd",vLineColor:()=>"#bae6fd",paddingLeft:()=>0,paddingRight:()=>0,paddingTop:()=>0,paddingBottom:()=>0},
+      margin:[0,12,0,0]
+    }]
+  };
+}
+function downloadResultsPdf(){
+  if(!ensurePdfMake())return;
+  const exam=state.exams?.[activeExamId];
+  if(!exam)return toast("Sınav seçin.");
+  const options=syncClassSelection(activeExamId,advancedReportClassKeys,"report");
+  const info=classSelectionInfo(options,advancedReportClassKeys);
+  const results=sortedFilteredReportResults();
+  if(!results.length)return toast("PDF için listelenecek öğrenci bulunamadı.");
+  const showNet=reportShowsNet(exam),showScore=reportShowsScore(exam);
+  const avgRate=results.reduce((a,b)=>a+resultSuccessRate(b),0)/results.length;
+  const avgNet=showNet?results.reduce((a,b)=>a+Number(b.net||0),0)/results.length:null;
+  const avgScore=showScore?results.reduce((a,b)=>a+Number(b.score||0),0)/results.length:null;
+  const doc=pdfBaseDoc(exam,"SINAV SONUÇ LİSTESİ",info.text,reportSortLabel());
+  const summary=[
+    {label:"Öğrenci",value:results.length},
+    {label:"Ortalama Başarı",value:`%${avgRate.toFixed(1)}`},
+    ...(showNet?[{label:"Ortalama Net",value:avgNet.toFixed(2)}]:[]),
+    ...(showScore?[{label:"Ortalama Puan",value:avgScore.toFixed(2)}]:[])
+  ];
+  doc.content.push({text:"Genel Özet",style:"sectionTitle"},pdfSummaryCells(summary));
+  const header=["Sıra","No","Ad Soyad","Sınıf","Doğru","Yanlış","Boş","Başarı",...(showNet?["Net"]:[]),...(showScore?["Puan"]:[])];
+  const body=[
+    header.map(x=>({text:x,style:"tableHeader"})),
+    ...results.map((res,i)=>[
+      {text:String(i+1),alignment:"center",bold:true},
+      {text:String(res.studentNo||""),alignment:"center"},
+      {text:String(res.studentName||""),bold:true},
+      {text:String(res.className||""),alignment:"center"},
+      {text:String(res.correct??0),alignment:"center"},
+      {text:String(res.wrong??0),alignment:"center"},
+      {text:String(res.blank??0),alignment:"center"},
+      {text:`%${resultSuccessRate(res)}`,alignment:"center",bold:true},
+      ...(showNet?[{text:Number(res.net||0).toLocaleString("tr-TR"),alignment:"center"}]:[]),
+      ...(showScore?[{text:Number(res.score||0).toLocaleString("tr-TR"),alignment:"center",bold:true}]:[])
+    ].map(cell=>typeof cell==="object"?cell:{text:String(cell)}))
+  ];
+  const widths=[28,42,"*",45,34,34,34,42,...(showNet?[40]:[]),...(showScore?[42]:[])];
+  doc.content.push({text:"Öğrenci Sıralaması",style:"sectionTitle"},{table:{headerRows:1,widths,body},layout:{
+    fillColor:(row)=>row>0&&row%2===0?"#f8fafc":null,
+    hLineColor:()=>"#dbe3ef",vLineColor:()=>"#dbe3ef",
+    paddingLeft:()=>5,paddingRight:()=>5,paddingTop:()=>5,paddingBottom:()=>5
+  }});
+  doc.content.push({text:`Oluşturulma: ${new Date().toLocaleString("tr-TR")} · Yazı boyutu: 9 punto · Türkçe karakter destekli Roboto`,fontSize:7.5,color:"#64748b",margin:[0,10,0,0]});
+  const classPart=info.chosen.length===1?info.chosen[0].label:info.chosen.length>1?"coklu_sinif":"sinif";
+  globalThis.pdfMake.createPdf(doc).download(pdfFilename(`${exam.examDateText||examDateText(exam)}_${exam.examName}_${classPart}_sonuc_listesi.pdf`));
+}
+function downloadQuestionAnalysisPdf(){
+  if(!ensurePdfMake())return;
+  const exam=state.exams?.[advancedQuestionExamId];
+  if(!exam)return toast("Sınav seçin.");
+  const options=syncClassSelection(advancedQuestionExamId,advancedQuestionClassKeys,"question");
+  const info=classSelectionInfo(options,advancedQuestionClassKeys);
+  const results=filteredQuestionResults();
+  const data=questionAnalysisData(results,exam);
+  if(!results.length)return toast("PDF için sınıf seçin.");
+  if(!data.usable)return toast("Seçilen sınıflarda soru analizi verisi bulunamadı.");
+  const avg=data.rows.length?data.rows.reduce((a,b)=>a+b.success,0)/data.rows.length:0;
+  const doc=pdfBaseDoc(exam,"SORU ANALİZİ RAPORU",info.text,"Soru numarasına göre");
+  doc.content.push({text:"Analiz Özeti",style:"sectionTitle"},pdfSummaryCells([
+    {label:"Seçilen Sonuç",value:results.length},
+    {label:"Analize Dahil",value:data.usable},
+    {label:"Soru Sayısı",value:data.total},
+    {label:"Ortalama Soru Başarısı",value:`%${avg.toFixed(1)}`}
+  ]));
+  const body=[
+    ["Soru","Doğru Cevap","Doğru","Yanlış","Boş","Başarı","Yanlış / Boş Öğrenciler"].map(x=>({text:x,style:"tableHeader"})),
+    ...data.rows.map(row=>[
+      {text:String(row.no),alignment:"center",bold:true},
+      {text:String(row.key||"-"),alignment:"center",bold:true},
+      {text:String(row.correct),alignment:"center"},
+      {text:String(row.wrong),alignment:"center"},
+      {text:String(row.blank),alignment:"center"},
+      {text:`%${row.success}`,alignment:"center",bold:true},
+      {text:row.students.slice(0,12).join(", ")||"-",fontSize:7.8}
+    ])
+  ];
+  doc.content.push({text:"Soru Bazlı Sonuçlar",style:"sectionTitle"},{table:{headerRows:1,widths:[34,52,38,38,38,45,"*"],body},layout:{
+    fillColor:(row)=>row>0&&row%2===0?"#f8fafc":null,
+    hLineColor:()=>"#dbe3ef",vLineColor:()=>"#dbe3ef",
+    paddingLeft:()=>5,paddingRight:()=>5,paddingTop:()=>5,paddingBottom:()=>5
+  }});
+  doc.content.push({text:`Oluşturulma: ${new Date().toLocaleString("tr-TR")} · Yazı boyutu: 9 punto · Türkçe karakter destekli Roboto`,fontSize:7.5,color:"#64748b",margin:[0,10,0,0]});
+  const classPart=info.chosen.length===1?info.chosen[0].label:info.chosen.length>1?"coklu_sinif":"sinif";
+  globalThis.pdfMake.createPdf(doc).download(pdfFilename(`${exam.examDateText||examDateText(exam)}_${exam.examName}_${classPart}_soru_analizi.pdf`));
+}
+function initAdvancedReportUi(){
+  const reportExam=$("reportExam");
+  if(reportExam&&!reportExam.dataset.advancedBound){
+    reportExam.dataset.advancedBound="1";
+    reportExam.addEventListener("change",()=>{activeExamId=reportExam.value;advancedReportExamId="";advancedReportSearch="";openReport()});
+  }
+  document.addEventListener("change",e=>{
+    const reportClass=e.target.closest?.("[data-report-class]");
+    if(reportClass){
+      const key=reportClass.dataset.reportClass;
+      reportClass.checked?advancedReportClassKeys.add(key):advancedReportClassKeys.delete(key);
+      openReport();
+      return;
+    }
+    const qaClass=e.target.closest?.("[data-qa-class]");
+    if(qaClass){
+      const key=qaClass.dataset.qaClass;
+      qaClass.checked?advancedQuestionClassKeys.add(key):advancedQuestionClassKeys.delete(key);
+      renderQuestionAnalysisModalBody();
+      return;
+    }
+    if(e.target.id==="advancedReportSort"){
+      advancedReportSort=e.target.value;
+      openReport();
+    }
+  });
+  document.addEventListener("input",e=>{
+    if(e.target.id==="advancedReportSearch"){
+      const cursor=e.target.selectionStart||String(e.target.value||"").length;
+      advancedReportSearch=e.target.value;
+      openReport();
+      const input=$("advancedReportSearch");
+      if(input){input.focus();try{input.setSelectionRange(cursor,cursor)}catch(_e){}}
+    }
+  });
+  document.addEventListener("click",e=>{
+    if(e.target.closest("[data-report-class-all]")){
+      reportClassOptions(activeExamId).forEach(x=>advancedReportClassKeys.add(x.key));openReport();return;
+    }
+    if(e.target.closest("[data-report-class-clear]")){
+      advancedReportClassKeys.clear();openReport();return;
+    }
+    if(e.target.closest("[data-report-pdf]")){downloadResultsPdf();return}
+    if(e.target.closest("[data-qa-class-all]")){
+      reportClassOptions(advancedQuestionExamId).forEach(x=>advancedQuestionClassKeys.add(x.key));renderQuestionAnalysisModalBody();return;
+    }
+    if(e.target.closest("[data-qa-class-clear]")){
+      advancedQuestionClassKeys.clear();renderQuestionAnalysisModalBody();return;
+    }
+    if(e.target.closest("[data-qa-pdf]")){downloadQuestionAnalysisPdf();return}
+    if(e.target.closest("[data-qa-close]")){closeQuestionAnalysisModal();return}
+    const modal=e.target.closest?.("#advancedQuestionAnalysisModal");
+    if(modal&&e.target===modal)closeQuestionAnalysisModal();
+  });
+}
+
+
 function bind(){$$('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));$("activeSchoolSelect").onchange=e=>{activeSchoolId=e.target.value;localStorage.setItem("optikokuma_active_school",activeSchoolId);renderAll()};$("addSchoolBtn").onclick=addSchool;$("addClassesBtn").onclick=addClasses;$("saveStudentBtn").onclick=saveStudentFromForm;$("clearStudentFormBtn").onclick=clearStudentForm;$("studentClassFilter").onchange=renderStudentsTable;$("studentSearch").oninput=renderStudentsTable;$("selectAllStudents").onclick=()=>{$$('.studentCheck').forEach(c=>{c.checked=true;selectedStudentNos.add(c.value)})};$("clearStudentSelection").onclick=()=>{selectedStudentNos.clear();renderStudentsTable()};$("deleteSelectedStudents").onclick=deleteSelectedStudents;$("loadSheetBtn").onclick=loadSheet;$("bulkSelectAll").onclick=()=>{bulkRows.forEach(x=>x.selected=true);renderBulk()};$("bulkClearSelection").onclick=()=>{bulkRows.forEach(x=>x.selected=false);renderBulk()};$("bulkRemoveSelected").onclick=()=>{bulkRows=bulkRows.filter(x=>!x.selected);renderBulk()};$("bulkSaveSelected").onclick=saveBulk;$("examSchool").onchange=()=>renderExamArea(false);$("examSubjectGroup").onchange=()=>renderExamArea(true);$("examSubject").onchange=renderExamPreview;$("examManualSubject").oninput=renderExamPreview;$("examResultMode").onchange=updateResultOptions;$("examScoreBase").oninput=renderExamPreview;["examNetWrongCount","examNetCorrectDeduct"].forEach(id=>{const el=$(id);if(el)el.oninput=renderExamPreview});$("readExamTxt").onclick=readExamTxt;$("saveExamBtn").onclick=saveExam;$("reportSchool").onchange=()=>renderReports(false);$("loadReportBtn").onclick=openReport;$("deleteExamBtn").onclick=deleteExam;$("reportSelectAll").onclick=()=>{$$('.reportCheck').forEach(c=>{c.checked=true;reportSelected.add(c.value)})};$("reportClearSelection").onclick=()=>{reportSelected.clear();openReport()};$("whatsSelected").onclick=()=>whatsappText("selected");$("whatsAll").onclick=()=>whatsappText("all");const copyWhatsBtn=$("copyWhats");if(copyWhatsBtn)copyWhatsBtn.onclick=copyWhatsappOutput;$("cardSchool").onchange=()=>renderStudentCard(false);$("cardClass").onchange=()=>renderStudentCard(true);$("openStudentCard").onclick=openStudentCard;$("exportJsonBtn").onclick=exportJson;$("guideDownloadBtn").onclick=downloadGuide;$("importJsonBtn").onclick=()=>$("jsonImportFile").click();$("jsonImportFile").onchange=importJsonFile;$("clearAllBtn").onclick=clearAll;document.addEventListener("change",e=>{if(e.target.classList.contains("examClassCheck"))renderExamPreview()})}
 bind();
 initExtraUi();
+initAdvancedReportUi();
 onValue(r(),snap=>{state={schools:{},classes:{},students:{},exams:{},examResults:{},settings:{},...(snap.val()||{})};setConnected(true,"Firebase bağlı");renderAll()},err=>{setConnected(false,"Firebase hata");toast(err.message||"Firebase bağlantı hatası")});
 
 </script>
