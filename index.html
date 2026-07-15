@@ -87,29 +87,29 @@ input,select,textarea,.copyable-text,.whatsapp-box,.waTextArea{text-transform:no
 @media(max-width:900px){.advanced-filter-grid{grid-template-columns:1fr}.advanced-filter-actions{align-items:stretch;flex-direction:column}.advanced-filter-actions-left,.advanced-filter-actions-right{width:100%}.advanced-filter-actions button{flex:1}.qa-modal-box{padding:13px}}
 
 
-/* === ÖĞRENCİ GELİŞİM GRAFİĞİ VE KARŞILAŞTIRMA === */
-.student-progress-section{margin-top:14px;break-inside:avoid;page-break-inside:avoid}
-.student-progress-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px}
-.student-progress-title{font-size:15px;font-weight:950;color:#172033}
-.student-progress-chart{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,#fff,#fffaf6);padding:10px;overflow:hidden}
-.student-progress-chart svg{display:block;width:100%;height:auto;max-height:235px}
-.student-progress-note{font-size:11px;color:#64748b;line-height:1.4;margin-top:6px;text-transform:none}
-.comparison-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:end}
-.comparison-actions{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+/* === ÇOKLU SINAV VE TÜM SINIFLAR KARŞILAŞTIRMA === */
+.comparison-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;align-items:end}
+.comparison-actions{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-top:10px}
 .comparison-result{margin-top:12px}
-.comparison-head{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-bottom:12px}
-.comparison-side{border:1px solid var(--line);border-radius:16px;background:#fff;padding:12px;min-width:0}
-.comparison-side b{display:block;font-size:16px;line-height:1.3;color:#172033}
-.comparison-side span{display:block;color:#64748b;font-size:12px;margin-top:4px;text-transform:none}
-.comparison-vs{font-size:13px;font-weight:950;color:#9a3412;background:#ffedd5;border:1px solid #fed7aa;border-radius:999px;padding:7px 9px}
+.comparison-picker{margin-top:12px;border:1px solid var(--line);border-radius:16px;background:#fbfdff;padding:12px;text-transform:none}
+.comparison-picker-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.comparison-picker-tools{display:flex;gap:8px;flex-wrap:wrap}
+.comparison-exam-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;max-height:310px;overflow:auto;padding-right:4px}
+.comparison-exam-item{display:flex;align-items:flex-start;gap:8px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:9px 10px;cursor:pointer}
+.comparison-exam-item input{width:auto;margin-top:2px;flex:0 0 auto}
+.comparison-exam-item span{display:block;min-width:0;font-size:12px;font-weight:850;color:#334155;line-height:1.35}
+.comparison-exam-item small{display:block;color:#64748b;font-weight:700;margin-top:2px;text-transform:none}
+.comparison-selection-badge{display:inline-flex;align-items:center;border-radius:999px;padding:7px 10px;background:#ede9fe;color:#5b21b6;border:1px solid #ddd6fe;font-size:12px;font-weight:900}
+.comparison-summary{border:1px solid var(--line);border-radius:16px;background:linear-gradient(135deg,#fff,#f8fbff);padding:13px;margin-bottom:12px}
+.comparison-summary b{display:block;font-size:17px;color:#172033}
+.comparison-summary span{display:block;color:#64748b;font-size:12px;margin-top:4px;text-transform:none}
 .comparison-bars{display:grid;gap:8px;margin:10px 0 12px}
-.comparison-bar-row{display:grid;grid-template-columns:minmax(130px,1fr) 3fr 56px;gap:8px;align-items:center;font-size:12px;font-weight:850}
+.comparison-bar-row{display:grid;grid-template-columns:minmax(180px,1.2fr) 3fr 62px;gap:8px;align-items:center;font-size:12px;font-weight:850}
+.comparison-bar-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .comparison-bar-track{height:11px;border-radius:999px;background:#e2e8f0;overflow:hidden}
 .comparison-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#f6ad73,#f28c45)}
-.comparison-difference{display:inline-flex;align-items:center;border-radius:999px;padding:4px 7px;font-weight:900;font-size:11px;background:#f1f5f9;color:#475569;white-space:nowrap}
-.comparison-difference.up{background:#dcfce7;color:#166534}.comparison-difference.down{background:#fee2e2;color:#991b1b}
 .comparison-insight{border-left:4px solid #f28c45;background:#fff7ed;border-radius:12px;padding:10px 12px;color:#7c2d12;line-height:1.45;text-transform:none;margin-top:10px}
-@media(max-width:900px){.comparison-controls{grid-template-columns:1fr}.comparison-head{grid-template-columns:1fr}.comparison-vs{justify-self:start}.comparison-bar-row{grid-template-columns:1fr}.comparison-bar-track{width:100%}}
+@media(max-width:900px){.comparison-controls{grid-template-columns:1fr}.comparison-exam-list{grid-template-columns:1fr}.comparison-bar-row{grid-template-columns:1fr}.comparison-bar-track{width:100%}}
 @media print{
   @page{size:A4 portrait;margin:11mm}
   #studentCardResult{position:absolute!important;left:0!important;top:0!important;width:100%!important}
@@ -117,13 +117,7 @@ input,select,textarea,.copyable-text,.whatsapp-box,.waTextArea{text-transform:no
   .student-report-grid{grid-template-columns:repeat(4,1fr)!important;gap:6px!important;margin:7px 0!important;break-inside:avoid;page-break-inside:avoid}
   .student-report-metric{padding:7px!important;border-radius:9px!important;break-inside:avoid;page-break-inside:avoid}
   .student-report-metric b{font-size:16px!important;margin-top:2px!important}
-  .student-progress-section,.student-report-section,.metric{break-inside:avoid!important;page-break-inside:avoid!important}
-  .student-progress-section{margin-top:8px!important}
-  .student-progress-head{margin-bottom:4px!important}
-  .student-progress-title{font-size:12px!important}
-  .student-progress-chart{padding:5px!important;border-radius:8px!important}
-  .student-progress-chart svg{height:180px!important;max-height:180px!important}
-  .student-progress-note{font-size:8px!important;margin-top:3px!important}
+  .student-report-section,.metric{break-inside:avoid!important;page-break-inside:avoid!important}
   .student-report-section{margin-top:8px!important}
   .student-report-section h3{font-size:11px!important;margin:0 0 4px!important}
   .student-report-section table{font-size:8.2px!important}
@@ -198,7 +192,7 @@ input,select,textarea,.copyable-text,.whatsapp-box,.waTextArea{text-transform:no
 <div class="grid">
 <div class="card span-3"><h2 class="section-title">Sınav Raporu</h2><label>Okul</label><select id="reportSchool"></select><label>Sınav</label><select id="reportExam"></select><label>Öğretmen adı <span class="mini">(isteğe bağlı)</span></label><input id="reportTeacherName" placeholder="Örn. Ayşe Yılmaz"><div class="mini">Öğretmen adı yazılırsa WhatsApp mesajı öğretmen imzasıyla, boş bırakılırsa okul/kurum diliyle hazırlanır.</div><div class="actions"><button id="loadReportBtn">Raporu Aç</button><button id="closeReportBtn" class="secondary">Raporu Kapat</button><button id="appendToExamBtn" class="orange">Bu Sınava Öğrenci Ekle</button><button id="deleteExamBtn" class="red">Bu Sınavı Sil</button></div><div id="reportStats" style="margin-top:12px"></div></div>
 <div class="card span-9"><h2 class="section-title">Sonuç Listesi</h2><div class="actions"><button id="reportSelectAll" class="soft">Tümünü Seç</button><button id="reportClearSelection" class="secondary">Seçimi Temizle</button><button id="whatsSelected" class="green">Seçilenleri Mesaj Kutusuna Aktar</button><button id="whatsAll" class="green">Tüm Sınav Mesajlarını Ayrı Ayrı Oluştur</button></div><div id="reportTable" style="margin-top:12px"></div><label>WhatsApp metinleri</label><div class="mini">Toplu mesajlar her öğrenci için ayrı kutuda hazırlanır; tek tek kopyalanabilir veya WhatsApp ile açılabilir.</div><div id="whatsOutput" class="whatsapp-box"></div></div>
-<div class="card span-12"><h2 class="section-title">Sınav / Sınıf Karşılaştırma</h2><div class="mini">İki sınavın genel sonuçlarını veya aynı sınavdaki iki sınıfın performansını karşılaştırın. Fark değerleri ikinci seçimin birinci seçime göre değişimini gösterir.</div><div id="comparisonPanel" style="margin-top:12px"></div></div>
+<div class="card span-12"><h2 class="section-title">Çoklu Sınav ve Tüm Sınıflar Karşılaştırma</h2><div class="mini">Aynı sınava giren tüm sınıfları birlikte karşılaştırın veya tek bir sınıf için en fazla 20 sınav seçerek sonuçları yan yana inceleyin.</div><div id="comparisonPanel" style="margin-top:12px"></div></div>
 </div>
 </section>
 <section id="studentcard" class="view">
@@ -346,32 +340,7 @@ function normalizePhone(p){let d=onlyDigits(p);if(!d)return"";if(d.startsWith("9
 function makeWaMessage(res,exam){const showNet=exam.showNet||exam.resultMode==="net"||exam.resultMode==="score_net";const showScore=exam.showScore||exam.resultMode==="score_correct"||exam.resultMode==="score_net";const teacher=teacherNameValue();const school=getSchoolName(exam.schoolId)||res.schoolName||"Okulumuz";const date=exam.examDateText||inputToTrDate(exam.examDate)||"";const lines=[`*${school} Sınav Bilgilendirme Servisi*`,"","Sayın Velimiz,","_Sınav sonucu bilgilendirmesidir._","",`👤 Öğrenci: *${res.studentName}*`,`📚 Sınav: *${exam.subject} - ${exam.examName}*`,`📅 Tarih: *${date}*`,`🏫 Sınıf: *${res.className||"Belirtilmedi"}*`,`📘 Kitapçık: *${res.booklet||"Belirtilmedi"}*`,"",`✅ Doğru: *${res.correct}*`,`❌ Yanlış: *${res.wrong}*`,`⚪ Boş: *${res.blank}*`,`📊 Başarı: *%${resultSuccessRate(res)}*`];if(showNet)lines.push(`🧮 Net : *${Number(res.net||0).toLocaleString("tr-TR")}*`);if(showScore)lines.push(`📝 Puan : *${Number(res.score||0).toLocaleString("tr-TR")}*`);lines.push("","Bilginize sunar, öğrencimize başarılar dileriz.","",teacher?`Saygılarımla,\n*${teacher}*\n${exam.subject} Öğretmeni`:`Saygılarımızla,\n*${school}*`);return lines.join("\n")}
 function whatsappText(scope){const exam=state.exams?.[activeExamId];if(!exam)return;const all=Object.values(state.examResults?.[activeExamId]||{});const chosen=scope==="all"?all:all.filter(x=>reportSelected.has(x.resultKey));if(!chosen.length)return toast("Öğrenci seçilmedi.");$("whatsOutput").textContent=chosen.map(x=>makeWaMessage(x,exam)).join("\n\n------------------------------\n\n");toast(`${chosen.length} WhatsApp metni hazırlandı.`)}
 
-function compactProgressDate(exam={}){
-  const value=examDateText(exam);
-  const match=String(value||"").match(/^(\d{1,2})[.\/-](\d{1,2})/);
-  return match?`${match[1].padStart(2,"0")}.${match[2].padStart(2,"0")}`:String(value||"").slice(0,8);
-}
-function studentProgressChartHtml(rows=[]){
-  if(!rows.length)return"";
-  const chronological=[...rows].sort((a,b)=>String(a.exam.examDate||"").localeCompare(String(b.exam.examDate||""))||Number(a.exam.createdAt||0)-Number(b.exam.createdAt||0));
-  const shown=chronological.slice(-12);
-  const width=900,height=235,left=48,right=20,top=22,bottom=52;
-  const chartWidth=width-left-right,chartHeight=height-top-bottom;
-  const x=i=>shown.length===1?left+chartWidth/2:left+(i*chartWidth)/(shown.length-1);
-  const y=value=>top+((100-Math.max(0,Math.min(100,Number(value)||0)))*chartHeight)/100;
-  const rates=shown.map(item=>Number(resultSuccessRate(item.res)||0));
-  const points=rates.map((rate,i)=>`${x(i).toFixed(1)},${y(rate).toFixed(1)}`).join(" ");
-  const areaPoints=shown.length?`${left},${top+chartHeight} ${points} ${x(shown.length-1).toFixed(1)},${top+chartHeight}`:"";
-  const grids=[0,25,50,75,100].map(value=>{const yy=y(value);return `<line x1="${left}" y1="${yy}" x2="${width-right}" y2="${yy}" stroke="#e2e8f0" stroke-width="1"/><text x="${left-8}" y="${yy+4}" text-anchor="end" font-size="10" fill="#64748b">${value}</text>`}).join("");
-  const labels=shown.map((item,i)=>{const xx=x(i),rate=rates[i],yy=y(rate);return `<g><circle cx="${xx}" cy="${yy}" r="4.5" fill="#f28c45" stroke="#ffffff" stroke-width="2"><title>${esc(examDateText(item.exam))} · ${esc(item.exam.subject||"")} · ${esc(item.exam.examName||"")} · %${rate}</title></circle><text x="${xx}" y="${Math.max(12,yy-9)}" text-anchor="middle" font-size="9.5" font-weight="700" fill="#9a3412">%${rate}</text><text x="${xx}" y="${height-27}" text-anchor="middle" font-size="9.5" fill="#475569">${esc(compactProgressDate(item.exam))}</text><text x="${xx}" y="${height-13}" text-anchor="middle" font-size="8.5" fill="#64748b">${i+1}. sınav</text></g>`}).join("");
-  const first=rates[0]??0,last=rates[rates.length-1]??0,diff=Number((last-first).toFixed(1));
-  const trendText=shown.length<2?"Tek sınav verisi":diff>0?`İlk gösterilen sınava göre +${diff} puan`:diff<0?`İlk gösterilen sınava göre ${diff} puan`:"İlk ve son sınav başarısı aynı";
-  const trendClass=diff>0?"green":diff<0?"red":"gray";
-  const scopeText=chronological.length>shown.length?`Son ${shown.length} sınav gösteriliyor.`:`${shown.length} sınav gösteriliyor.`;
-  return `<div class="student-progress-section"><div class="student-progress-head"><div><div class="student-progress-title">Sınavlara Göre Başarı Gelişimi</div><div class="mini">Başarı yüzdesinin sınav tarihine göre değişimi</div></div><span class="tag ${trendClass}">${esc(trendText)}</span></div><div class="student-progress-chart"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Öğrenci başarı gelişim grafiği"><rect x="${left}" y="${top}" width="${chartWidth}" height="${chartHeight}" rx="8" fill="#ffffff"/>${grids}${shown.length>1?`<polygon points="${areaPoints}" fill="#fff1e8" opacity="0.82"/><polyline points="${points}" fill="none" stroke="#f28c45" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`:""}${labels}</svg></div><div class="student-progress-note">${esc(scopeText)} Yüzdeler öğrencinin her sınavdaki doğru cevap oranına göre hesaplanır; ayrıntılı sınav adları aşağıdaki tabloda yer alır.</div></div>`;
-}
-
-function openStudentCard(){syncTeacherNameInputs();const no=$("cardStudent").value;const st=state.students?.[no];if(!st){$("studentCardResult").innerHTML='<div class="empty">Öğrenci seçiniz.</div>';return}const rows=studentExamRows(no);const sum=studentReportSummary(rows);const showNetAvg=showStudentCardNetAverage();const custom=String($("cardGeneralComment")?.value||"").trim();const cardShowNet=rows.some(x=>x.exam.showNet||x.exam.resultMode==="net"||x.exam.resultMode==="score_net");const cardShowScore=rows.some(x=>x.exam.showScore||x.exam.resultMode==="score_correct"||x.exam.resultMode==="score_net");const tableRows=rows.map(x=>{const showNet=x.exam.showNet||x.exam.resultMode==="net"||x.exam.resultMode==="score_net";const showScore=x.exam.showScore||x.exam.resultMode==="score_correct"||x.exam.resultMode==="score_net";return `<tr><td>${esc(examDateText(x.exam))}</td><td>${esc(x.exam.subject)}</td><td>${esc(x.exam.examName)}</td><td><span class="tag gray">${esc(x.res.booklet||"")}</span></td><td>${x.res.correct}</td><td>${x.res.wrong}</td><td>${x.res.blank}</td><td><span class="tag ${resultSuccessRate(x.res)>=70?"green":resultSuccessRate(x.res)>=50?"orange":"red"}">%${resultSuccessRate(x.res)}</span></td>${cardShowNet?`<td>${showNet?Number(x.res.net||0).toLocaleString("tr-TR"):"-"}</td>`:""}${cardShowScore?`<td>${showScore?Number(x.res.score||0).toLocaleString("tr-TR"):"-"}</td>`:""}</tr>`}).join("");const netMetric=showNetAvg?`<div class="student-report-metric"><span>Net Ort.</span><b>${sum.avgNet!==null?sum.avgNet.toFixed(2):"-"}</b></div>`:"";const netInline=showNetAvg&&sum.avgNet!==null?` | Net ortalaması: ${sum.avgNet.toFixed(2)}`:"";const bestWeak=`${sum.bestTopic?`<span class="tag green">En İyi: ${esc(sum.bestTopic.label)} %${sum.bestTopic.rate.toFixed(1)}</span>`:""} ${sum.weakTopic?`<span class="tag orange">Gelişim Önceliği: ${esc(sum.weakTopic.label)} %${sum.weakTopic.rate.toFixed(1)}</span>`:""}`;const extraHeaders=`${cardShowNet?"<th>Net</th>":""}${cardShowScore?"<th>Puan</th>":""}`;$("studentCardResult").innerHTML=`<div class="student-card-controls print-hide"><button class="green" type="button" data-stcard-wa="${esc(no)}">WhatsApp Metnine Çevir</button><button class="secondary" type="button" data-stcard-copy="${esc(no)}">WhatsApp Metnini Kopyala</button><button class="soft" type="button" data-stcard-print="1">Çıktı Al / Yazdır</button></div><div id="studentCardPrintArea" class="print-area"><div class="metric"><span>${esc(st.className)} / ${esc(st.no)}</span><b>${esc(st.name)}</b><span>Sınav sayısı: ${rows.length} | Genel başarı ortalaması: %${sum.avgRate.toFixed(1)}${sum.avgScore!==null?` | Puan ortalaması: ${sum.avgScore.toFixed(2)}`:""}${netInline}</span><div style="margin-top:8px">${bestWeak}</div></div><div class="student-report-grid"><div class="student-report-metric"><span>Sınav Sayısı</span><b>${rows.length}</b></div><div class="student-report-metric"><span>Genel Başarı</span><b>%${sum.avgRate.toFixed(1)}</b></div><div class="student-report-metric"><span>Puan Ort.</span><b>${sum.avgScore!==null?sum.avgScore.toFixed(2):"-"}</b></div>${netMetric}</div>${studentProgressChartHtml(rows)}${custom?`<div class="student-report-section"><h3>Öğretmen Notu</h3><div class="empty" style="text-align:left">${esc(custom)}</div></div>`:""}${rows.length?`<div class="student-report-section"><h3>Ayrıntılı Sınav Tablosu</h3><div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Ders</th><th>Sınav</th><th>Kitapçık</th><th>Doğru</th><th>Yanlış</th><th>Boş</th><th>Başarı</th>${extraHeaders}</tr></thead><tbody>${tableRows}</tbody></table></div></div>`:`<div class="empty">Bu öğrenci için kayıtlı sınav yok.</div>`}</div><div id="studentCardWhatsBox" class="copyable-card hide print-hide"><div class="copyable-head"><div class="copyable-title">Öğrenci karnesi WhatsApp metni</div><div class="message-tools"><button class="secondary" type="button" data-stcard-copy="${esc(no)}">Kopyala</button></div></div><textarea id="studentCardWhatsText" class="copyable-text" readonly></textarea></div>`}
+function openStudentCard(){syncTeacherNameInputs();const no=$("cardStudent").value;const st=state.students?.[no];if(!st){$("studentCardResult").innerHTML='<div class="empty">Öğrenci seçiniz.</div>';return}const rows=studentExamRows(no);const sum=studentReportSummary(rows);const showNetAvg=showStudentCardNetAverage();const custom=String($("cardGeneralComment")?.value||"").trim();const cardShowNet=rows.some(x=>x.exam.showNet||x.exam.resultMode==="net"||x.exam.resultMode==="score_net");const cardShowScore=rows.some(x=>x.exam.showScore||x.exam.resultMode==="score_correct"||x.exam.resultMode==="score_net");const tableRows=rows.map(x=>{const showNet=x.exam.showNet||x.exam.resultMode==="net"||x.exam.resultMode==="score_net";const showScore=x.exam.showScore||x.exam.resultMode==="score_correct"||x.exam.resultMode==="score_net";return `<tr><td>${esc(examDateText(x.exam))}</td><td>${esc(x.exam.subject)}</td><td>${esc(x.exam.examName)}</td><td><span class="tag gray">${esc(x.res.booklet||"")}</span></td><td>${x.res.correct}</td><td>${x.res.wrong}</td><td>${x.res.blank}</td><td><span class="tag ${resultSuccessRate(x.res)>=70?"green":resultSuccessRate(x.res)>=50?"orange":"red"}">%${resultSuccessRate(x.res)}</span></td>${cardShowNet?`<td>${showNet?Number(x.res.net||0).toLocaleString("tr-TR"):"-"}</td>`:""}${cardShowScore?`<td>${showScore?Number(x.res.score||0).toLocaleString("tr-TR"):"-"}</td>`:""}</tr>`}).join("");const netMetric=showNetAvg?`<div class="student-report-metric"><span>Net Ort.</span><b>${sum.avgNet!==null?sum.avgNet.toFixed(2):"-"}</b></div>`:"";const netInline=showNetAvg&&sum.avgNet!==null?` | Net ortalaması: ${sum.avgNet.toFixed(2)}`:"";const bestWeak=`${sum.bestTopic?`<span class="tag green">En İyi: ${esc(sum.bestTopic.label)} %${sum.bestTopic.rate.toFixed(1)}</span>`:""} ${sum.weakTopic?`<span class="tag orange">Gelişim Önceliği: ${esc(sum.weakTopic.label)} %${sum.weakTopic.rate.toFixed(1)}</span>`:""}`;const extraHeaders=`${cardShowNet?"<th>Net</th>":""}${cardShowScore?"<th>Puan</th>":""}`;$("studentCardResult").innerHTML=`<div class="student-card-controls print-hide"><button class="green" type="button" data-stcard-wa="${esc(no)}">WhatsApp Metnine Çevir</button><button class="secondary" type="button" data-stcard-copy="${esc(no)}">WhatsApp Metnini Kopyala</button><button class="soft" type="button" data-stcard-print="1">Çıktı Al / Yazdır</button></div><div id="studentCardPrintArea" class="print-area"><div class="metric"><span>${esc(st.className)} / ${esc(st.no)}</span><b>${esc(st.name)}</b><span>Sınav sayısı: ${rows.length} | Genel başarı ortalaması: %${sum.avgRate.toFixed(1)}${sum.avgScore!==null?` | Puan ortalaması: ${sum.avgScore.toFixed(2)}`:""}${netInline}</span><div style="margin-top:8px">${bestWeak}</div></div><div class="student-report-grid"><div class="student-report-metric"><span>Sınav Sayısı</span><b>${rows.length}</b></div><div class="student-report-metric"><span>Genel Başarı</span><b>%${sum.avgRate.toFixed(1)}</b></div><div class="student-report-metric"><span>Puan Ort.</span><b>${sum.avgScore!==null?sum.avgScore.toFixed(2):"-"}</b></div>${netMetric}</div>${custom?`<div class="student-report-section"><h3>Öğretmen Notu</h3><div class="empty" style="text-align:left">${esc(custom)}</div></div>`:""}${rows.length?`<div class="student-report-section"><h3>Ayrıntılı Sınav Tablosu</h3><div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Ders</th><th>Sınav</th><th>Kitapçık</th><th>Doğru</th><th>Yanlış</th><th>Boş</th><th>Başarı</th>${extraHeaders}</tr></thead><tbody>${tableRows}</tbody></table></div></div>`:`<div class="empty">Bu öğrenci için kayıtlı sınav yok.</div>`}</div><div id="studentCardWhatsBox" class="copyable-card hide print-hide"><div class="copyable-head"><div class="copyable-title">Öğrenci karnesi WhatsApp metni</div><div class="message-tools"><button class="secondary" type="button" data-stcard-copy="${esc(no)}">Kopyala</button></div></div><textarea id="studentCardWhatsText" class="copyable-text" readonly></textarea></div>`}
 async function deleteSelectedStudents(){const selected=Array.from(selectedStudentNos);if(!selected.length)return toast("Silinecek öğrenci seçin.");const ans=prompt(`${selected.length} öğrenciyi silmek için EVET yazın.`);if(ans!=="EVET")return;for(const no of selected)await remove(r(`students/${no}`));selectedStudentNos.clear();toast("Seçilen öğrenciler silindi.")}
 async function deleteExam(){const id=$("reportExam").value||activeExamId;const ex=state.exams?.[id];if(!ex)return toast("Sınav seçin.");const ans=prompt(`${ex.examName} sınavını ve sonuçlarını silmek için EVET yazın.`);if(ans!=="EVET")return;await remove(r(`exams/${id}`));await remove(r(`examResults/${id}`));activeExamId="";reportSelected.clear();toast("Sınav silindi.")}
 function downloadGuide(){const blob=new Blob([CHATGPT_GUIDE],{type:"text/plain;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="CHATGPT_OPTIK_OKUMA_KULLANIM_KILAVUZU.txt";a.click();URL.revokeObjectURL(a.href)}
@@ -694,34 +663,87 @@ openReport=function(){
   if(master)master.onchange=()=>{$$('.reportCheck').forEach(c=>{c.checked=master.checked;c.checked?reportSelected.add(c.value):reportSelected.delete(c.value)})};
 };
 
-let comparisonMode="exam";
-let comparisonExamA="",comparisonExamB="",comparisonClassExam="",comparisonClassA="",comparisonClassB="";
+const MAX_COMPARISON_EXAMS=20;
+let comparisonMode="classes";
+let comparisonClassExam="";
+let comparisonStudentClassKey="";
+let comparisonSelectedExamIds=new Set();
+
 function comparisonExams(schoolId=activeSchoolId){
   return Object.values(state.exams||{}).filter(exam=>!schoolId||exam.schoolId===schoolId).sort((a,b)=>String(b.examDate||"").localeCompare(String(a.examDate||""))||Number(b.createdAt||0)-Number(a.createdAt||0));
 }
 function comparisonExamLabel(exam={}){return `${examDateText(exam)} · ${exam.subject||"Ders"} · ${exam.examName||"Sınav"}`}
 function comparisonOptionHtml(items=[],selected="",labelFn=item=>item.name||item.id){return items.map(item=>`<option value="${esc(item.id)}" ${item.id===selected?"selected":""}>${esc(labelFn(item))}</option>`).join("")}
-function comparisonEmpty(message="Karşılaştırma seçimlerini yapıp Karşılaştır düğmesine basın."){const el=$("comparisonResult");if(el)el.innerHTML=`<div class="empty">${esc(message)}</div>`}
+function comparisonEmpty(message="Seçimleri yapıp Karşılaştır düğmesine basın."){const el=$("comparisonResult");if(el)el.innerHTML=`<div class="empty">${esc(message)}</div>`}
+let comparisonContextCache={schoolId:"",examsRef:null,resultsRef:null,exams:[],index:null};
+function buildComparisonIndex(exams=[]){
+  const classes=new Map(),examClasses=new Map();
+  exams.forEach(exam=>{
+    const byClass=new Map();
+    Object.values(state.examResults?.[exam.id]||{}).forEach(res=>{
+      if(res.mode==="guest")return;
+      const key=resultClassKey(res);
+      if(!byClass.has(key))byClass.set(key,[]);
+      byClass.get(key).push(res);
+      if(!classes.has(key))classes.set(key,{key,label:String(res.className||"Sınıfsız").trim()||"Sınıfsız",examIds:new Set()});
+      classes.get(key).examIds.add(exam.id);
+    });
+    examClasses.set(exam.id,byClass);
+  });
+  return{
+    classes:[...classes.values()].map(item=>({key:item.key,label:item.label,examCount:item.examIds.size})).sort((a,b)=>a.label.localeCompare(b.label,"tr",{numeric:true})),
+    examClasses
+  };
+}
+function comparisonContext(schoolId=activeSchoolId){
+  const cached=comparisonContextCache;
+  if(cached.schoolId===schoolId&&cached.examsRef===state.exams&&cached.resultsRef===state.examResults&&cached.index)return cached;
+  const exams=comparisonExams(schoolId),index=buildComparisonIndex(exams);
+  comparisonContextCache={schoolId,examsRef:state.exams,resultsRef:state.examResults,exams,index};
+  return comparisonContextCache;
+}
+function pruneComparisonExamSelection(eligibleIds=[]){
+  const eligible=new Set(eligibleIds);
+  comparisonSelectedExamIds=new Set([...comparisonSelectedExamIds].filter(id=>eligible.has(id)).slice(0,MAX_COMPARISON_EXAMS));
+}
+function comparisonExamChecksHtml(exams=[]){
+  if(!exams.length)return '<div class="empty">Bu sınıf için karşılaştırılabilecek sınav bulunmuyor.</div>';
+  return `<div class="comparison-exam-list">${exams.map(exam=>`<label class="comparison-exam-item"><input type="checkbox" data-comparison-exam="${esc(exam.id)}" ${comparisonSelectedExamIds.has(exam.id)?"checked":""}><span>${esc(exam.examName||"Sınav")}<small>${esc(examDateText(exam))} · ${esc(exam.subject||"Ders")} · ${Number(exam.totalQuestions||0)} soru</small></span></label>`).join("")}</div>`;
+}
+function updateComparisonSelectionBadge(){
+  const badge=$("comparisonSelectionBadge");
+  if(badge)badge.textContent=`${comparisonSelectedExamIds.size} / ${MAX_COMPARISON_EXAMS} sınav seçildi`;
+}
 function renderComparisonPanel(){
   const panel=$("comparisonPanel");if(!panel)return;
   const schoolId=$("reportSchool")?.value||activeSchoolId;
-  const exams=comparisonExams(schoolId);
-  const examIds=new Set(exams.map(x=>x.id));
-  if(!examIds.has(comparisonExamB))comparisonExamB=exams[0]?.id||"";
-  if(!examIds.has(comparisonExamA)||comparisonExamA===comparisonExamB)comparisonExamA=exams[1]?.id||exams[0]?.id||"";
+  const {exams,index}=comparisonContext(schoolId);
+  const examIds=new Set(exams.map(exam=>exam.id));
   if(!examIds.has(comparisonClassExam))comparisonClassExam=$("reportExam")?.value||exams[0]?.id||"";
-  const classes=reportClassOptions(comparisonClassExam);
-  const classKeys=new Set(classes.map(x=>x.key));
-  if(!classKeys.has(comparisonClassA))comparisonClassA=classes[0]?.key||"";
-  if(!classKeys.has(comparisonClassB)||comparisonClassB===comparisonClassA)comparisonClassB=classes[1]?.key||classes[0]?.key||"";
-  const modeOptions=`<option value="exam" ${comparisonMode==="exam"?"selected":""}>İki sınavı karşılaştır</option><option value="class" ${comparisonMode==="class"?"selected":""}>Aynı sınavda iki sınıfı karşılaştır</option>`;
-  const controls=comparisonMode==="exam"?`<div><label>1. sınav</label><select id="comparisonExamA">${comparisonOptionHtml(exams,comparisonExamA,comparisonExamLabel)}</select></div><div><label>2. sınav</label><select id="comparisonExamB">${comparisonOptionHtml(exams,comparisonExamB,comparisonExamLabel)}</select></div>`:`<div><label>Karşılaştırılacak sınav</label><select id="comparisonClassExam">${comparisonOptionHtml(exams,comparisonClassExam,comparisonExamLabel)}</select></div><div><label>1. sınıf</label><select id="comparisonClassA">${classes.map(x=>`<option value="${esc(x.key)}" ${x.key===comparisonClassA?"selected":""}>${esc(x.label)}</option>`).join("")}</select></div><div><label>2. sınıf</label><select id="comparisonClassB">${classes.map(x=>`<option value="${esc(x.key)}" ${x.key===comparisonClassB?"selected":""}>${esc(x.label)}</option>`).join("")}</select></div>`;
-  panel.innerHTML=`<div class="comparison-controls"><div><label>Karşılaştırma türü</label><select id="comparisonMode">${modeOptions}</select></div>${controls}<div class="comparison-actions"><button type="button" class="orange" id="runComparisonBtn">Karşılaştır</button></div></div><div id="comparisonResult" class="comparison-result"><div class="empty">${exams.length?"Karşılaştırma seçimlerini yapıp Karşılaştır düğmesine basın.":"Bu okulda karşılaştırılabilecek sınav bulunmuyor."}</div></div>`;
-  $("comparisonMode").onchange=e=>{comparisonMode=e.target.value;renderComparisonPanel()};
-  const bindValue=(id,setter)=>{const el=$(id);if(el)el.onchange=e=>{setter(e.target.value);comparisonEmpty()}};
-  bindValue("comparisonExamA",value=>comparisonExamA=value);bindValue("comparisonExamB",value=>comparisonExamB=value);
-  bindValue("comparisonClassA",value=>comparisonClassA=value);bindValue("comparisonClassB",value=>comparisonClassB=value);
-  const classExam=$("comparisonClassExam");if(classExam)classExam.onchange=e=>{comparisonClassExam=e.target.value;comparisonClassA="";comparisonClassB="";renderComparisonPanel()};
+  const classKeys=new Set(index.classes.map(item=>item.key));
+  if(!classKeys.has(comparisonStudentClassKey))comparisonStudentClassKey=index.classes[0]?.key||"";
+  const eligibleExams=comparisonStudentClassKey?exams.filter(exam=>index.examClasses.get(exam.id)?.has(comparisonStudentClassKey)):[];
+  pruneComparisonExamSelection(eligibleExams.map(exam=>exam.id));
+  const modeOptions=`<option value="classes" ${comparisonMode==="classes"?"selected":""}>Aynı sınavdaki tüm sınıfları karşılaştır</option><option value="exams" ${comparisonMode==="exams"?"selected":""}>Bir sınıfın seçilen sınavlarını karşılaştır</option>`;
+  const modeControl=`<div><label>Karşılaştırma türü</label><select id="comparisonMode">${modeOptions}</select></div>`;
+  const controls=comparisonMode==="classes"
+    ?`${modeControl}<div><label>Karşılaştırılacak sınav</label><select id="comparisonClassExam">${comparisonOptionHtml(exams,comparisonClassExam,comparisonExamLabel)}</select></div>`
+    :`${modeControl}<div><label>Karşılaştırılacak sınıf</label><select id="comparisonStudentClass">${index.classes.map(item=>`<option value="${esc(item.key)}" ${item.key===comparisonStudentClassKey?"selected":""}>${esc(item.label)} (${item.examCount} sınav)</option>`).join("")}</select></div>`;
+  const picker=comparisonMode==="exams"?`<div class="comparison-picker"><div class="comparison-picker-head"><div><b>Sınavları Seçin</b><div class="mini">En fazla ${MAX_COMPARISON_EXAMS} sınav karşılaştırılır. Hesaplama yalnızca Karşılaştır düğmesine basıldığında yapılır.</div></div><div class="comparison-picker-tools"><span id="comparisonSelectionBadge" class="comparison-selection-badge">${comparisonSelectedExamIds.size} / ${MAX_COMPARISON_EXAMS} sınav seçildi</span><button type="button" class="soft" id="comparisonSelectAll">En Yeni 20 Sınavı Seç</button><button type="button" class="secondary" id="comparisonClearExams">Seçimi Temizle</button></div></div>${comparisonExamChecksHtml(eligibleExams)}</div>`:"";
+  panel.innerHTML=`<div class="comparison-controls">${controls}</div>${picker}<div class="comparison-actions"><button type="button" class="orange" id="runComparisonBtn">Karşılaştır</button></div><div id="comparisonResult" class="comparison-result"><div class="empty">${exams.length?"Seçimleri yapıp Karşılaştır düğmesine basın.":"Bu okulda karşılaştırılabilecek sınav bulunmuyor."}</div></div>`;
+  $("comparisonMode").onchange=e=>{comparisonMode=e.target.value;comparisonEmpty();renderComparisonPanel()};
+  const classExam=$("comparisonClassExam");if(classExam)classExam.onchange=e=>{comparisonClassExam=e.target.value;comparisonEmpty()};
+  const classSelect=$("comparisonStudentClass");if(classSelect)classSelect.onchange=e=>{comparisonStudentClassKey=e.target.value;comparisonSelectedExamIds.clear();renderComparisonPanel()};
+  $$('[data-comparison-exam]').forEach(input=>input.onchange=()=>{
+    const id=input.dataset.comparisonExam;
+    if(input.checked){
+      if(comparisonSelectedExamIds.size>=MAX_COMPARISON_EXAMS){input.checked=false;return toast(`En fazla ${MAX_COMPARISON_EXAMS} sınav seçebilirsiniz.`)}
+      comparisonSelectedExamIds.add(id);
+    }else comparisonSelectedExamIds.delete(id);
+    updateComparisonSelectionBadge();comparisonEmpty();
+  });
+  const selectAll=$("comparisonSelectAll");if(selectAll)selectAll.onclick=()=>{comparisonSelectedExamIds=new Set(eligibleExams.slice(0,MAX_COMPARISON_EXAMS).map(exam=>exam.id));renderComparisonPanel();if(eligibleExams.length>MAX_COMPARISON_EXAMS)toast(`Performans için en yeni ${MAX_COMPARISON_EXAMS} sınav seçildi.`)};
+  const clear=$("comparisonClearExams");if(clear)clear.onclick=()=>{comparisonSelectedExamIds.clear();renderComparisonPanel()};
   const run=$("runComparisonBtn");if(run)run.onclick=runComparison;
 }
 function comparisonMetrics(results=[],exam={}){
@@ -729,48 +751,47 @@ function comparisonMetrics(results=[],exam={}){
   const average=fn=>count?results.reduce((sum,item)=>sum+Number(fn(item)||0),0)/count:0;
   return{count,success:average(resultSuccessRate),correct:average(x=>x.correct),wrong:average(x=>x.wrong),blank:average(x=>x.blank),net:reportShowsNet(exam)&&count?average(x=>x.net):null,score:reportShowsScore(exam)&&count?average(x=>x.score):null};
 }
-function comparisonDifference(value,positiveGood=null){const number=Number(value||0);let cls="";if(positiveGood!==null&&Math.abs(number)>0.0001){const favorable=positiveGood?number>0:number<0;cls=favorable?"up":"down"}const sign=number>0?"+":"";return `<span class="comparison-difference ${cls}">${sign}${number.toFixed(1)}</span>`}
-function comparisonTableHtml(a,b){
-  const rows=[["Öğrenci Sayısı",a.count,b.count,b.count-a.count,"count",null],["Ortalama Başarı",a.success,b.success,b.success-a.success,"percent",true],["Ortalama Doğru",a.correct,b.correct,b.correct-a.correct,"decimal",true],["Ortalama Yanlış",a.wrong,b.wrong,b.wrong-a.wrong,"decimal",false],["Ortalama Boş",a.blank,b.blank,b.blank-a.blank,"decimal",false]];
-  if(a.net!==null||b.net!==null)rows.push(["Ortalama Net",a.net??0,b.net??0,(b.net??0)-(a.net??0),"decimal",true]);
-  if(a.score!==null||b.score!==null)rows.push(["Ortalama Puan",a.score??0,b.score??0,(b.score??0)-(a.score??0),"decimal",true]);
-  const format=(value,type)=>type==="count"?String(Math.round(value)):type==="percent"?`%${Number(value).toFixed(1)}`:Number(value).toFixed(2);
-  return `<div class="table-wrap simple-table"><table><thead><tr><th>Ölçüt</th><th>1. Seçim</th><th>2. Seçim</th><th>Fark</th></tr></thead><tbody>${rows.map(([label,av,bv,diff,type,positiveGood])=>`<tr><td><b>${esc(label)}</b></td><td>${format(av,type)}</td><td>${format(bv,type)}</td><td>${comparisonDifference(diff,positiveGood)}</td></tr>`).join("")}</tbody></table></div>`;
+function comparisonBarsHtml(rows=[]){
+  return `<div class="comparison-bars">${rows.map(row=>`<div class="comparison-bar-row"><span class="comparison-bar-label" title="${esc(row.label)}">${esc(row.label)}</span><div class="comparison-bar-track"><div class="comparison-bar-fill" style="width:${Math.max(0,Math.min(100,row.metrics.success)).toFixed(1)}%"></div></div><b>%${row.metrics.success.toFixed(1)}</b></div>`).join("")}</div>`;
 }
-function comparisonBarsHtml(labelA,labelB,a,b){return `<div class="comparison-bars"><div class="comparison-bar-row"><span>${esc(labelA)}</span><div class="comparison-bar-track"><div class="comparison-bar-fill" style="width:${Math.max(0,Math.min(100,a.success)).toFixed(1)}%"></div></div><b>%${a.success.toFixed(1)}</b></div><div class="comparison-bar-row"><span>${esc(labelB)}</span><div class="comparison-bar-track"><div class="comparison-bar-fill" style="width:${Math.max(0,Math.min(100,b.success)).toFixed(1)}%"></div></div><b>%${b.success.toFixed(1)}</b></div></div>`}
-function renderComparisonResult(labelA,subA,metricsA,labelB,subB,metricsB,insight=""){
+function comparisonTableHtml(rows=[],firstColumn="Karşılaştırma"){
+  const showNet=rows.some(row=>row.metrics.net!==null),showScore=rows.some(row=>row.metrics.score!==null);
+  const extraHead=`${showNet?"<th>Ort. Net</th>":""}${showScore?"<th>Ort. Puan</th>":""}`;
+  return `<div class="table-wrap simple-table"><table><thead><tr><th>Sıra</th><th>${esc(firstColumn)}</th><th>Öğrenci</th><th>Ort. Başarı</th><th>Ort. Doğru</th><th>Ort. Yanlış</th><th>Ort. Boş</th>${extraHead}</tr></thead><tbody>${rows.map((row,i)=>`<tr><td><span class="report-rank">${i+1}</span></td><td><b>${esc(row.label)}</b>${row.sub?`<div class="mini">${esc(row.sub)}</div>`:""}</td><td>${row.metrics.count}</td><td><span class="tag ${row.metrics.success>=70?"green":row.metrics.success>=50?"orange":"red"}">%${row.metrics.success.toFixed(1)}</span></td><td>${row.metrics.correct.toFixed(2)}</td><td>${row.metrics.wrong.toFixed(2)}</td><td>${row.metrics.blank.toFixed(2)}</td>${showNet?`<td>${row.metrics.net===null?"-":row.metrics.net.toFixed(2)}</td>`:""}${showScore?`<td>${row.metrics.score===null?"-":row.metrics.score.toFixed(2)}</td>`:""}</tr>`).join("")}</tbody></table></div>`;
+}
+function renderComparisonCollection({title="Karşılaştırma",subtitle="",rows=[],firstColumn="Karşılaştırma",insight=""}={}){
   const el=$("comparisonResult");if(!el)return;
-  el.innerHTML=`<div class="comparison-head"><div class="comparison-side"><b>${esc(labelA)}</b><span>${esc(subA)}</span></div><div class="comparison-vs">VS</div><div class="comparison-side"><b>${esc(labelB)}</b><span>${esc(subB)}</span></div></div>${comparisonBarsHtml(labelA,labelB,metricsA,metricsB)}${comparisonTableHtml(metricsA,metricsB)}${insight?`<div class="comparison-insight">${insight}</div>`:""}`;
-}
-function commonStudentInsight(resultsA=[],resultsB=[]){
-  const mapA=new Map(resultsA.filter(x=>x.mode!=="guest"&&normalizeNo(x.studentNo)!=="0").map(x=>[normalizeNo(x.studentNo),x]));
-  const deltas=resultsB.filter(x=>x.mode!=="guest"&&mapA.has(normalizeNo(x.studentNo))).map(x=>resultSuccessRate(x)-resultSuccessRate(mapA.get(normalizeNo(x.studentNo))));
-  if(!deltas.length)return"Ortak öğrenci bulunmadığı için bireysel gelişim değişimi hesaplanamadı.";
-  const improved=deltas.filter(x=>x>0.05).length,declined=deltas.filter(x=>x<-0.05).length,same=deltas.length-improved-declined;
-  const avg=deltas.reduce((a,b)=>a+b,0)/deltas.length;
-  return `<b>${deltas.length} ortak öğrenci</b> karşılaştırıldı. Ortalama bireysel başarı değişimi <b>${avg>0?"+":""}${avg.toFixed(1)} puan</b>; ${improved} öğrenci yükseldi, ${declined} öğrenci geriledi, ${same} öğrenci aynı kaldı.`;
+  if(!rows.length){el.innerHTML='<div class="empty">Karşılaştırılabilecek sonuç bulunamadı.</div>';return}
+  el.innerHTML=`<div class="comparison-summary"><b>${esc(title)}</b><span>${esc(subtitle)}</span></div>${comparisonBarsHtml(rows)}${comparisonTableHtml(rows,firstColumn)}${insight?`<div class="comparison-insight">${insight}</div>`:""}`;
 }
 function runComparison(){
-  if(comparisonMode==="exam"){
-    if(!comparisonExamA||!comparisonExamB)return toast("Karşılaştırılacak iki sınavı seçin.");
-    if(comparisonExamA===comparisonExamB)return toast("İki farklı sınav seçin.");
-    const examA=state.exams?.[comparisonExamA],examB=state.exams?.[comparisonExamB];if(!examA||!examB)return toast("Sınav bulunamadı.");
-    const resultsA=reportResultsSorted(examA.id),resultsB=reportResultsSorted(examB.id);if(!resultsA.length||!resultsB.length)return toast("Seçilen sınavlardan birinde sonuç yok.");
-    let insight=commonStudentInsight(resultsA,resultsB);
-    if(Number(examA.totalQuestions||0)!==Number(examB.totalQuestions||0))insight+=` <b>Soru sayıları farklı olduğu için ana karşılaştırma ölçütü başarı yüzdesidir.</b>`;
-    renderComparisonResult(examA.examName||"1. Sınav",`${examDateText(examA)} · ${examA.subject||""}`,comparisonMetrics(resultsA,examA),examB.examName||"2. Sınav",`${examDateText(examB)} · ${examB.subject||""}`,comparisonMetrics(resultsB,examB),insight);
+  const schoolId=$("reportSchool")?.value||activeSchoolId;
+  const {exams,index}=comparisonContext(schoolId);
+  if(comparisonMode==="classes"){
+    const exam=state.exams?.[comparisonClassExam];if(!exam)return toast("Karşılaştırılacak sınavı seçin.");
+    const byClass=index.examClasses.get(exam.id)||new Map();
+    const rows=[...byClass.entries()].map(([key,results])=>({key,label:String(results[0]?.className||"Sınıfsız"),sub:`${results.length} öğrenci`,metrics:comparisonMetrics(results,exam)})).filter(row=>row.metrics.count).sort((a,b)=>b.metrics.success-a.metrics.success||a.label.localeCompare(b.label,"tr",{numeric:true}));
+    if(rows.length<2)return toast("Bu sınavda karşılaştırılabilecek en az iki sınıf bulunmalıdır.");
+    const best=rows[0],last=rows[rows.length-1];
+    const insight=`<b>${esc(best.label)}</b> %${best.metrics.success.toFixed(1)} ile en yüksek sınıf ortalamasına sahiptir. Sınıflar arasındaki en yüksek ve en düşük başarı farkı <b>${(best.metrics.success-last.metrics.success).toFixed(1)} puandır</b>. Misafir sonuçları karşılaştırmaya dahil edilmemiştir.`;
+    renderComparisonCollection({title:`${exam.examName||"Sınav"} · Tüm Sınıflar`,subtitle:`${examDateText(exam)} · ${exam.subject||"Ders"} · ${rows.length} sınıf`,rows,firstColumn:"Sınıf",insight});
     return;
   }
-  const exam=state.exams?.[comparisonClassExam];if(!exam)return toast("Karşılaştırılacak sınavı seçin.");
-  if(!comparisonClassA||!comparisonClassB)return toast("Karşılaştırılacak iki sınıfı seçin.");
-  if(comparisonClassA===comparisonClassB)return toast("İki farklı sınıf seçin.");
-  const options=reportClassOptions(exam.id),classA=options.find(x=>x.key===comparisonClassA),classB=options.find(x=>x.key===comparisonClassB);
-  const all=reportResultsSorted(exam.id),resultsA=all.filter(x=>resultClassKey(x)===comparisonClassA),resultsB=all.filter(x=>resultClassKey(x)===comparisonClassB);
-  if(!resultsA.length||!resultsB.length)return toast("Seçilen sınıflardan birinde sonuç yok.");
-  const metricsA=comparisonMetrics(resultsA,exam),metricsB=comparisonMetrics(resultsB,exam);
-  const diff=metricsB.success-metricsA.success;
-  const insight=`İkinci sınıfın ortalama başarısı birinci sınıfa göre <b>${diff>0?"+":""}${diff.toFixed(1)} puan</b> ${diff>0?"daha yüksek":diff<0?"daha düşük":"aynı"}.`;
-  renderComparisonResult(classA?.label||"1. Sınıf",`${examDateText(exam)} · ${exam.examName||"Sınav"}`,metricsA,classB?.label||"2. Sınıf",`${examDateText(exam)} · ${exam.examName||"Sınav"}`,metricsB,insight);
+  if(!comparisonStudentClassKey)return toast("Karşılaştırılacak sınıfı seçin.");
+  const selectedIds=[...comparisonSelectedExamIds].slice(0,MAX_COMPARISON_EXAMS);
+  if(selectedIds.length<2)return toast("En az iki, en fazla 20 sınav seçin.");
+  const selectedExams=selectedIds.map(id=>state.exams?.[id]).filter(Boolean).sort((a,b)=>String(a.examDate||"").localeCompare(String(b.examDate||""))||Number(a.createdAt||0)-Number(b.createdAt||0));
+  const classLabel=index.classes.find(item=>item.key===comparisonStudentClassKey)?.label||"Seçilen Sınıf";
+  const rows=selectedExams.map(exam=>{
+    const results=index.examClasses.get(exam.id)?.get(comparisonStudentClassKey)||[];
+    return{label:exam.examName||"Sınav",sub:`${examDateText(exam)} · ${exam.subject||"Ders"} · ${Number(exam.totalQuestions||0)} soru`,metrics:comparisonMetrics(results,exam),exam};
+  }).filter(row=>row.metrics.count);
+  if(rows.length<2)return toast("Seçilen sınavların en az ikisinde bu sınıfa ait sonuç bulunmalıdır.");
+  const ranked=[...rows].sort((a,b)=>b.metrics.success-a.metrics.success);
+  const questionCounts=new Set(rows.map(row=>Number(row.exam.totalQuestions||0)).filter(Boolean));
+  let insight=`En yüksek ortalama başarı <b>${esc(ranked[0].label)}</b> sınavında %${ranked[0].metrics.success.toFixed(1)}, en düşük ortalama başarı <b>${esc(ranked[ranked.length-1].label)}</b> sınavında %${ranked[ranked.length-1].metrics.success.toFixed(1)} olarak hesaplandı.`;
+  if(questionCounts.size>1)insight+=' <b>Soru sayıları farklı olduğu için temel karşılaştırma ölçütü başarı yüzdesidir.</b>';
+  renderComparisonCollection({title:`${classLabel} · Seçilen Sınavlar`,subtitle:`${rows.length} sınav karşılaştırıldı · Sınır: ${MAX_COMPARISON_EXAMS}`,rows,firstColumn:"Sınav",insight});
 }
 
 function questionAnalysisData(results=[],exam={}){
