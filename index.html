@@ -194,6 +194,7 @@ let importedExamMeta={};
 let importedExamFileName="";
 let activeExamId="";
 let reportSelected=new Set();
+let reportIsOpen=false;
 const CHATGPT_GUIDE="CHATGPT OPTİK OKUMA KULLANIM KILAVUZU\n\nAMAÇ\nBu kılavuz, cevap anahtarı optikleri ve öğrenci optiklerinin ChatGPT ile sıra sıra okutulup Optik Okuma Sistemi'ne aktarılacak TXT çıktısının hazırlanması için kullanılır.\n\nİŞLEME BAŞLAMADAN ÖNCE ZORUNLU SORGU SIRASI\nChatGPT, kullanıcıdan tüm bilgileri aynı anda istemek yerine aşağıdaki sırayla ilerlemelidir. Öğrenci ZIP dosyası gelmeden okuma işlemine başlamamalıdır.\n\n1. Önce cevap anahtarını iste.\nMesaj: \"Lütfen önce cevap anahtarı optiğini veya cevap anahtarı ZIP dosyasını yükleyiniz.\"\n\n2. Cevap anahtarı geldikten sonra ders adını iste.\nMesaj: \"Ders adını yazar mısınız? Örnek: Fen Bilimleri\"\n\n3. Ders adı geldikten sonra sınav adını iste.\nMesaj: \"Sınav adını yazar mısınız? Örnek: Mevsimler ve İklim\"\n\n4. Gerekirse sınav tarihini iste. Tarih verilmezse bugünün tarihini kullan.\nMesaj: \"Sınav tarihini yazar mısınız? Boş bırakırsanız bugünün tarihi kullanılacaktır.\"\n\n5. En son öğrenci cevap optiklerinin ZIP dosyasını iste.\nMesaj: \"Şimdi öğrenci cevap optiklerinin bulunduğu ZIP dosyasını yükleyiniz. ZIP geldikten sonra okuma işlemine başlayacağım.\"\n\n6. Öğrenci cevap ZIP dosyası yüklenmeden okuma, karşılaştırma ve TXT oluşturma işlemine başlama.\n\nKİTAPÇIK TÜRÜ ZORUNLU ALANDIR\nOptik formdaki \"Kitapçık Türü / Grup\" bölümü sınıf veya grup bilgisi değildir. Bu bölüm yalnızca kitapçık türünü gösterir. Geçerli kitapçık türleri A, B, C, D'dir. Her öğrenci satırında KITAPCIK alanı mutlaka bulunmalıdır.\n\nKİTAPÇIK TÜRÜ KODLANMAMIŞSA\nBirden fazla cevap anahtarı / kitapçık varsa ve öğrencinin kitapçık türü kodlanmamışsa tahmin yapılmaz. TXT satırında KITAPCIK alanı boş bırakılır, NOT alanına \"Kitapçık kodlanmamış\" yazılır. Sistem kaydetmeden önce bu öğrencileri tek tek gösterir ve öğretmenden öğrencinin hangi kitapçıkla okunacağını seçmesini ister. Öğretmen A, B, C veya D seçmeden sınav kaydedilmez.\n\nÖĞRENCİ NUMARASI KODLANMAMIŞSA\nÖğrenci numarası kodlanmamış veya okunamamışsa öğrenci satırı atlanmaz. Optiğin üzerinde yazan ad soyad ADSOYAD alanına yazılır, NO alanı boş bırakılır veya 0 yazılır, NOT alanına \"Öğrenci no kodlanmamış\" yazılır. Sistem kaydetmeden önce bu satırları tek tek gösterir ve öğretmenden optikte yazan isme göre öğrencinin numarasını girmesini ister. Numara girilmeden sınav kaydedilmez.\n\nCEVAP ANAHTARI KURALI\nCevap anahtarı optiği öğrenci numarası 11111 ile kodlanır. 11111 numaralı kâğıt öğrenci sonucu değildir ve öğrenci satırına yazılmaz. Dört kitapçıklı sınavda CEVAP_ANAHTARI_A, CEVAP_ANAHTARI_B, CEVAP_ANAHTARI_C, CEVAP_ANAHTARI_D alanları oluşturulur. Tek kitapçıklı sınavda CEVAP_ANAHTARI alanı kullanılabilir.\n\nSORU SAYISI BELİRLEME KURALI\nSoru sayısı, optik formdaki hazır boş soru alanına göre değil, cevap anahtarı optiğinde işaretlenmiş gerçek soru sayısına göre belirlenir. Örneğin optik formda 20 soru alanı bulunsa bile cevap anahtarında yalnızca ilk 12 soru işaretliyse sınav 12 soruluk kabul edilir ve öğrenciler yalnızca ilk 12 soru üzerinden değerlendirilir. Cevap anahtarında işaretlenmeyen 13-20. sorular değerlendirmeye alınmaz. TXT dosyasında SORU_SAYISI alanına da cevap anahtarında işaretli olan gerçek soru sayısı yazılır.\n\nÖĞRENCİ NUMARASI KURALI\nBaştaki sıfırlar silinir. 08001, 008001 ve 0008001 aynı öğrencidir: 8001. Numara okunamıyorsa satır silinmez; NO boş/0 bırakılır ve NOT alanında belirtilir.\n\nCEVAP OKUMA KURALLARI\nHer soru için tek koyu balon işaret kabul edilir. Hiç işaret yoksa - yazılır ve boş sayılır. Birden fazla koyu balon varsa X yazılır ve yanlış sayılır. Okunamayan soru varsa ? yazılır; program bunu boş sayar ve NOT alanında soru numarası belirtilir. Belirsiz alanlarda tahmin yapılmaz.\n\nCEVAPLAR ALANI\nGeçerli karakterler: A, B, C, D, -, X, ?. Boşluk kullanılmaz. CEVAPLAR uzunluğu soru sayısı ile aynı olmalıdır.\n\nHESAPLAMA KURALI\nDoğru: Öğrencinin cevabı kendi kitapçığının cevap anahtarıyla aynı olan soru sayısıdır. Yanlış: A/B/C/D olup anahtardan farklı olanlar ve X cevaplarıdır. Boş: - ve ? cevaplarıdır. Toplam = Doğru + Yanlış + Boş olmalıdır. Puan ve net TXT dosyasına yazılmaz; program içinde hesaplanır.\n\nTXT DOSYA ADI\nDers_Sınav Adı_GG.AA.YYYY_ÖğrenciSayısı_student.txt\nÖrnek: Fen Bilimleri_Mevsimler_03.07.2026_10_student.txt\n\nTXT İÇERİK FORMATI\nSINAV_ADI=Mevsimler ve İklim\nSINAV_TARIHI=03.07.2026\nDERS=Fen Bilimleri\nDERS_KATEGORISI=LGS DERSLERİ\nSORU_SAYISI=20\nCEVAP_ANAHTARI_A=BDACBADCBADCBCADADCD\nCEVAP_ANAHTARI_B=ACDBACDBACDBACDBACDB\nCEVAP_ANAHTARI_C=DCBADCBAABCDABCDABCD\nCEVAP_ANAHTARI_D=CBADCBADCBADCBADCBAD\nOGRENCI_SAYISI=10\n\nNO;ADSOYAD;KITAPCIK;TOPLAM;DOGRU;YANLIS;BOS;CEVAPLAR;NOT\n8001;AHMET FARUK ÖZKAN;A;20;15;3;2;BDACBADCBADCBCADAD--;Okundu\n0;ZEYNEP YILMAZ;;20;0;0;0;AC-BACDBACCCACDBAC--;Öğrenci no kodlanmamış | Kitapçık kodlanmamış\n8003;ELİF DEMİR;D;20;0;0;20;--------------------;Boş kağıt\n\nNOT ALANI ÖRNEKLERİ\nOkundu | Boş kağıt | Kitapçık boş | Kitapçık çoklu işaret | Kitapçık okunamadı | Kitapçık kodlanmamış | Öğrenci no kodlanmamış | Bu kitapçık için cevap anahtarı yok | Çoklu işaret: 4, 9, 12 | Okunamadı: 6, 7 | Numara belirsiz | Fotoğraf kesik | Cevap alanı bulanık | A anahtarıyla karşılaştırıldı\n\nSON KONTROL LİSTESİ\n1. Cevap anahtarı ilk adımda alındı mı?\n2. Ders adı ve sınav adı kullanıcıdan alındı mı?\n3. Öğrenci cevap ZIP dosyası en son istendi mi?\n4. ZIP gelmeden okuma işlemine başlanmadı mı?\n5. 11111 cevap anahtarı öğrenci satırlarına eklenmedi mi?\n6. Her öğrenci satırında KITAPCIK sütunu var mı? Kodlanmamışsa boş bırakılıp NOT yazıldı mı?\n7. Birden fazla kitapçık varsa kitapçığı kodlanmamış öğrenciler için tahmin yapılmadı mı?\n8. Öğrenci numarası kodlanmamışsa satır silinmeden NO boş/0 bırakılıp ad soyad yazıldı mı?\n9. Soru sayısı, optikteki toplam boş alana göre değil cevap anahtarında işaretli gerçek soru sayısına göre belirlendi mi?\n10. Soru sayısı, cevap anahtarı uzunluğu ve CEVAPLAR uzunluğu aynı mı?\n11. Baştaki sıfırlar silindi mi?\n12. Grup bilgisi sınıf gibi kullanılmadı mı?\n13. Doğru + Yanlış + Boş = Toplam mı?\n14. TXT içine puan veya net yazılmadı mı?\n\nCHATGPT'YE VERİLECEK HAZIR KOMUT\nBu kılavuza göre optik okuma yap. İşleme başlamadan önce kullanıcıdan sırayla cevap anahtarı optiğini veya cevap anahtarı ZIP dosyasını iste. Cevap anahtarı geldikten sonra ders adını sor. Ders adı geldikten sonra sınav adını sor. Gerekirse sınav tarihini sor. En son öğrenci cevap optiklerinin bulunduğu ZIP dosyasını iste. Öğrenci cevap ZIP dosyası gelmeden okuma, karşılaştırma ve TXT oluşturma işlemine başlama. ZIP geldikten sonra 11111 numaralı cevap anahtarı optiklerini oku. Soru sayısını optikteki hazır boş soru alanına göre değil, cevap anahtarında işaretlenmiş gerçek soru sayısına göre belirle. Kitapçık Türü / Grup alanını yalnızca kitapçık türü olarak kullan; sınıf veya grup olarak kullanma. Birden fazla kitapçık varsa kitapçığı kodlanmamış öğrenciler için tahmin yapma; KITAPCIK alanını boş bırak ve NOT alanına yaz. Öğrenci numarası kodlanmamışsa satırı silme; optikte yazan adı ADSOYAD alanına yaz, NO alanını boş/0 bırak ve NOT alanına yaz. Her öğrenciyi kendi kitapçığının cevap anahtarıyla karşılaştır. Doğru, yanlış ve boş sayılarını hesapla. Puan veya net yazma. Sonucu yalnızca belirtilen TXT formatında üret.";
 function r(path=""){return ref(db,path?`${rootPath}/${path}`:rootPath)}
 function esc(s){return String(s??"").replace(/[&<>'"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[m]))}
@@ -218,7 +219,7 @@ function setConnected(ok,msg){$("connDot").className=`dot ${ok?"ok":"err"}`;$("c
 function findClassByName(schoolId,name){const key=cleanKey(name);return Object.values(state.classes||{}).find(c=>c.schoolId===schoolId&&cleanKey(c.name)===key)}
 async function ensureClass(schoolId,name){name=String(name||"").trim();if(!schoolId||!name)return"";const old=findClassByName(schoolId,name);if(old)return old.id;const id=uid("class");const data={id,schoolId,name,createdAt:now(),updatedAt:now()};await set(r(`classes/${id}`),data);state.classes=state.classes||{};state.classes[id]=data;return id}
 function subjectOptions(group){const map={"LGS DERSLERİ":["Türkçe","Matematik","Fen Bilimleri","T.C. İnkılap Tarihi","Din Kültürü","İngilizce"],TYT:["Türkçe","Sosyal Bilimler","Matematik","Fen Bilimleri","Fizik","Kimya","Biyoloji","Tarih","Coğrafya","Felsefe","Din Kültürü"],AYT:["Matematik","Fizik","Kimya","Biyoloji","Edebiyat","Tarih","Coğrafya","Felsefe Grubu"],"Manuel Ders":[]};return map[group]||[]}
-function renderAll(){ensureActiveSchool();renderGlobalSelects();renderDashboard();renderSchoolsClasses();renderStudentArea();renderBulk();renderExamArea(false);renderReports(false);renderStudentCard(false)}
+function renderAll(){ensureActiveSchool();renderGlobalSelects();renderDashboard();renderSchoolsClasses();renderStudentArea();renderBulk();renderExamArea(false);renderReports(reportIsOpen);renderStudentCard(false)}
 function renderGlobalSelects(){const schools=getSchools();const html=schools.length?optionList(schools,"id","name",activeSchoolId):"<option value=''>Okul yok</option>";$("activeSchoolSelect").innerHTML=html;["bulkSchool","examSchool","reportSchool","cardSchool"].forEach(id=>{const el=$(id);if(el)el.innerHTML=html});["bulkSchool","examSchool","reportSchool","cardSchool"].forEach(id=>{const el=$(id);if(el)el.value=activeSchoolId});}
 function renderDashboard(){$("mSchools").textContent=getSchools().length;$("mClasses").textContent=Object.keys(state.classes||{}).length;$("mStudents").textContent=Object.keys(state.students||{}).length;$("mExams").textContent=Object.keys(state.exams||{}).length;const exams=Object.values(state.exams||{}).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,8);$("latestExams").innerHTML=exams.length?`<div class="table-wrap"><table><thead><tr><th>Tarih</th><th>Sınav</th><th>Ders</th><th>Okul</th><th>Öğrenci</th></tr></thead><tbody>${exams.map(e=>`<tr><td>${esc(e.examDateText||inputToTrDate(e.examDate)||"")}</td><td>${esc(e.examName||"")}</td><td>${esc(e.subject||"")}</td><td>${esc(getSchoolName(e.schoolId))}</td><td>${Object.keys(state.examResults?.[e.id]||{}).length}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">Kayıtlı sınav yok.</div>`}
 function renderSchoolsClasses(){const schools=getSchools();const rows=[];schools.forEach(s=>{const classes=getClasses(s.id);rows.push(`<tr><td><b>${esc(s.name)}</b></td><td>${classes.map(c=>`<span class="tag">${esc(c.name)}</span>`).join(" ")||"<span class='mini'>Sınıf yok</span>"}</td><td>${classes.length}</td><td><button class="ghost" data-school-edit="${esc(s.id)}">Ad Düzenle</button> <button class="red" data-school-delete="${esc(s.id)}">Sil</button></td></tr>`)});$("schoolsClassesTable").innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>Okul</th><th>Sınıflar</th><th>Adet</th><th>İşlem</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`:`<div class="empty">Önce okul ekleyin.</div>`;$$("[data-school-edit]").forEach(b=>b.onclick=()=>editSchool(b.dataset.schoolEdit));$$("[data-school-delete]").forEach(b=>b.onclick=()=>deleteSchool(b.dataset.schoolDelete));}
@@ -236,7 +237,23 @@ function resolveQuestionCount(row={},examOverride=null){const meta=examOverride|
 function renderExamMeta(){const m=importedExamMeta||{};const q=resolveQuestionCount();if(!examRows.length){$("examMetaBox").innerHTML="TXT bekleniyor.";return}const keyInfo=answerKeyCount(m)?`${answerKeyCount(m)} kitapçık anahtarı`:(m.answerKey?"Tek cevap anahtarı":"Anahtar yok");$("examMetaBox").innerHTML=`<div class="row"><span class="tag">${esc(m.examName||"Sınav")}</span><span class="tag">${esc(m.examDate?inputToTrDate(m.examDate):"")}</span><span class="tag">${esc(m.subject||currentExamSubject())}</span><span class="tag gray">${q} soru</span><span class="tag orange">${esc(keyInfo)}</span></div>`}
 function resultColumns(mode){return{net:isNetMode(mode),score:isScoreMode(mode)}}
 function renderExamPreview(){const classIds=selectedExamClassIds();const known=[];const unknown=[];examRows.forEach((row,i)=>{const st=state.students?.[row.no];if(st&&classIds.includes(st.classId))known.push({row,i,st});else unknown.push({row,i,st})});const bookletCounts=examRows.reduce((a,r)=>{const b=normalizeBooklet(r.booklet)||"Yok";a[b]=(a[b]||0)+1;return a},{});const bookletText=Object.entries(bookletCounts).map(([k,v])=>`${k}: ${v}`).join(" | ");$("examImportSummary").innerHTML=examRows.length?`<div class="row"><span class="tag green">Eşleşen: ${known.length}</span><span class="tag orange">Misafir / sınıf dışı / bulunmayan: ${unknown.length}</span><span class="tag gray">Toplam satır: ${examRows.length}</span><span class="tag">Kitapçık: ${esc(bookletText||"Yok")}</span></div>`:`Henüz dosya yüklenmedi.`;$("unknownArea").innerHTML=unknown.length?`<h3 class="section-title" style="font-size:15px">Eşleşmeyen veya Seçilen Sınıf Dışında Kalanlar</h3><div class="table-wrap"><table><thead><tr><th>No</th><th>TXT Adı</th><th>Kitapçık</th><th>Sistemdeki Durum</th><th>İşlem</th><th>Misafir/Öğrenci Adı</th></tr></thead><tbody>${unknown.map(x=>`<tr><td><b>${esc(x.row.no)}</b></td><td>${esc(x.row.name||"")}</td><td><span class="tag gray">${esc(x.row.booklet||"")}</span></td><td>${x.st?`<span class="tag orange">${esc(x.st.name)} / ${esc(x.st.className)} sınıf dışı</span>`:`<span class="tag red">Öğrenci yok</span>`}</td><td><select class="unknownAction" data-i="${x.i}"><option value="ignore">Okuma / raporlama dışı bırak</option><option value="guest">Bu sınav için misafir kaydet</option><option value="student">Normal öğrenci olarak kaydet</option></select></td><td><input class="unknownName" data-i="${x.i}" value="${esc(x.row.name||x.st?.name||"")}" placeholder="Ad soyad"></td></tr>`).join("")}</tbody></table></div>`:"";const mode=currentResultMode();const cols=resultColumns(mode);const extraHead=(cols.net?"<th>Net</th>":"")+(cols.score?"<th>Puan</th>":"");$("examPreview").innerHTML=examRows.length?`<div class="table-wrap"><table><thead><tr><th>No</th><th>Ad Soyad</th><th>Kitapçık</th><th>Toplam</th><th>Doğru</th><th>Yanlış</th><th>Boş</th>${extraHead}</tr></thead><tbody>${examRows.map(row=>{const calc=calcScore(row);const st=state.students?.[row.no];const ok=st&&classIds.includes(st.classId);return `<tr><td><b>${esc(row.no)}</b></td><td>${esc(ok?st.name:(row.name||""))}</td><td><span class="tag gray">${esc(row.booklet||"")}</span></td><td>${row.total||resolveQuestionCount(row)}</td><td>${row.correct}</td><td>${row.wrong}</td><td>${row.blank}</td>${cols.net?`<td>${calc.netText}</td>`:""}${cols.score?`<td>${calc.scoreText}</td>`:""}</tr>`}).join("")}</tbody></table></div>`:`<div class="empty">TXT önizlemesi burada listelenecek.</div>`;renderExamMeta()}
-function renderReports(keep){const schoolId=$("reportSchool")?.value||activeSchoolId;const exams=Object.values(state.exams||{}).filter(e=>!schoolId||e.schoolId===schoolId).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));$("reportExam").innerHTML=exams.map(e=>`<option value="${esc(e.id)}" ${e.id===activeExamId?"selected":""}>${esc((e.examDateText||inputToTrDate(e.examDate)||"")+" - "+(e.subject||"")+" - "+(e.examName||""))}</option>`).join("");if(!activeExamId&&exams[0])activeExamId=exams[0].id;if(!keep)openReport()}
+function clearReportView(message="Raporu görüntülemek için sınavı seçip Raporu Aç düğmesine basın."){
+  reportIsOpen=false;
+  activeReportDetailKey="";
+  $("reportStats").innerHTML=`<div class="empty">${esc(message)}</div>`;
+  $("reportTable").innerHTML='<div class="empty">Rapor henüz açılmadı.</div>';
+  $("whatsOutput").innerHTML="";
+  closeQuestionAnalysisModal();
+}
+function renderReports(keepOpen=false){
+  const schoolId=$("reportSchool")?.value||activeSchoolId;
+  const exams=Object.values(state.exams||{}).filter(e=>!schoolId||e.schoolId===schoolId).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  const selectedExamId=exams.some(e=>e.id===activeExamId)?activeExamId:(exams[0]?.id||"");
+  $("reportExam").innerHTML=exams.map(e=>`<option value="${esc(e.id)}" ${e.id===selectedExamId?"selected":""}>${esc((e.examDateText||inputToTrDate(e.examDate)||"")+" - "+(e.subject||"")+" - "+(e.examName||""))}</option>`).join("");
+  activeExamId=selectedExamId;
+  if(keepOpen&&reportIsOpen&&selectedExamId)openReport();
+  else clearReportView(exams.length?"Raporu görüntülemek için sınavı seçip Raporu Aç düğmesine basın.":"Bu okulda kayıtlı sınav bulunmuyor.");
+}
 function renderStudentCard(keep){const schoolId=$("cardSchool")?.value||activeSchoolId;fillSelect("cardClass",getClasses(schoolId),"Tüm sınıflar",$("cardClass")?.value||"");const classId=$("cardClass")?.value||"";fillSelect("cardStudent",getStudents(schoolId,classId).map(s=>({id:s.no,name:`${s.no} - ${s.name}`})),"Öğrenci seç",$("cardStudent")?.value||"");if(!keep)$("studentCardResult").innerHTML='<div class="empty">Öğrenci seçiniz.</div>'}
 async function saveStudentFromForm(){const schoolId=activeSchoolId;const classId=$("stClass").value;const no=normalizeNo($("stNo").value);const name=$("stName").value.trim();if(!schoolId)return toast("Önce okul ekleyin.");if(!classId)return toast("Sınıf seçin.");if(!no||no==="0")return toast("Öğrenci numarası girin.");if(!name)return toast("Ad soyad girin.");const old=state.students?.[no];if(old){const ans=prompt(`Bu öğrenci no zaten var: ${old.name}. Güncellemek istiyorsanız EVET yazın.`);if(ans!=="EVET")return toast("Güncelleme iptal edildi.")}const c=state.classes[classId];const data={no,name:name.toLocaleUpperCase("tr-TR"),schoolId,classId,className:c.name,parentPhone:onlyDigits($("stPhone").value),createdAt:old?.createdAt||now(),updatedAt:now()};await set(r(`students/${no}`),data);toast(old?"Öğrenci güncellendi.":"Öğrenci kaydedildi.");clearStudentForm()}
 function clearStudentForm(){["stNo","stName","stPhone"].forEach(id=>$(id).value="")}
@@ -576,10 +593,10 @@ openReport=function(){
   activeExamId=$("reportExam")?.value||activeExamId;
   const exam=state.exams?.[activeExamId];
   if(!exam){
-    $("reportStats").innerHTML='<div class="empty">Sınav seçiniz.</div>';
-    $("reportTable").innerHTML='<div class="empty">Sonuç yok.</div>';
+    clearReportView("Sınav seçiniz.");
     return;
   }
+  reportIsOpen=true;
   const options=syncClassSelection(activeExamId,advancedReportClassKeys,"report");
   const info=classSelectionInfo(options,advancedReportClassKeys);
   const results=sortedFilteredReportResults();
@@ -705,8 +722,16 @@ function pdfSummaryCells(items=[]){
     layout:{hLineColor:()=>"#dbe3ef",vLineColor:()=>"#dbe3ef",paddingLeft:()=>0,paddingRight:()=>0,paddingTop:()=>0,paddingBottom:()=>0}
   };
 }
+function pdfInstitutionName(exam={}){
+  const school=String(getSchoolName(exam.schoolId)||exam.schoolName||"Okul").trim();
+  return cleanKey(school)==="FENOMEN"?"Fenomen Eğitim Kurumları":school;
+}
+function pdfReadDateText(date=new Date()){
+  const weekday=date.toLocaleDateString("tr-TR",{weekday:"long"});
+  return `${String(date.getDate()).padStart(2,"0")}.${String(date.getMonth()+1).padStart(2,"0")}.${date.getFullYear()} ${weekday.charAt(0).toLocaleUpperCase("tr-TR")+weekday.slice(1)}`;
+}
 function pdfBaseDoc(exam,title,classText,sortText=""){
-  const school=getSchoolName(exam.schoolId)||exam.schoolName||"Okul";
+  const school=pdfInstitutionName(exam);
   return{
     pageSize:"A4",
     pageOrientation:"landscape",
@@ -715,14 +740,14 @@ function pdfBaseDoc(exam,title,classText,sortText=""){
     info:{title:`${title} - ${exam.examName||"Sınav"}`,author:school,subject:exam.subject||""},
     footer:(currentPage,pageCount)=>({
       margin:[28,8,28,0],
-      columns:[
-        {text:`${school} · ${exam.examName||"Sınav"}`,fontSize:7.5,color:"#64748b"},
-        {text:`Sayfa ${currentPage} / ${pageCount}`,alignment:"right",fontSize:7.5,color:"#64748b"}
-      ]
+      text:`Sayfa ${currentPage} / ${pageCount}`,
+      alignment:"right",
+      fontSize:7.5,
+      color:"#64748b"
     }),
     styles:{
       reportTitle:{fontSize:20,bold:true,color:"#0f172a"},
-      schoolTitle:{fontSize:9,bold:true,color:"#2563eb",characterSpacing:0.6},
+      schoolTitle:{fontSize:14,bold:true,color:"#F28C45",characterSpacing:0.35},
       subtitle:{fontSize:9,color:"#64748b"},
       sectionTitle:{fontSize:11,bold:true,color:"#0f172a",margin:[0,12,0,6]},
       tableHeader:{bold:true,color:"#ffffff",fillColor:"#0f172a",fontSize:8.2,alignment:"center"}
@@ -730,15 +755,15 @@ function pdfBaseDoc(exam,title,classText,sortText=""){
     content:[{
       table:{widths:["*",250],body:[[
         {stack:[
-          {text:school.toLocaleUpperCase("tr-TR"),style:"schoolTitle"},
+          {text:school,style:"schoolTitle"},
           {text:title,style:"reportTitle",margin:[0,5,0,4]},
           {text:`${exam.subject||"Ders"} · ${exam.examName||"Sınav"}`,style:"subtitle"}
         ],margin:[0,2,18,0]},
         pdfMetaTable(exam,classText,sortText)
       ]]},layout:"noBorders"
     },{
-      table:{widths:["*"],body:[[{text:classText,bold:true,fontSize:10,color:"#075985",fillColor:"#e0f2fe",margin:[8,6,8,6]}]]},
-      layout:{hLineColor:()=>"#bae6fd",vLineColor:()=>"#bae6fd",paddingLeft:()=>0,paddingRight:()=>0,paddingTop:()=>0,paddingBottom:()=>0},
+      table:{widths:["*"],body:[[{text:classText,bold:true,fontSize:10,color:"#9A4A12",fillColor:"#FFF1E6",margin:[8,6,8,6]}]]},
+      layout:{hLineColor:()=>"#F6C79C",vLineColor:()=>"#F6C79C",paddingLeft:()=>0,paddingRight:()=>0,paddingTop:()=>0,paddingBottom:()=>0},
       margin:[0,12,0,0]
     }]
   };
@@ -785,7 +810,7 @@ function downloadResultsPdf(){
     hLineColor:()=>"#dbe3ef",vLineColor:()=>"#dbe3ef",
     paddingLeft:()=>5,paddingRight:()=>5,paddingTop:()=>5,paddingBottom:()=>5
   }});
-  doc.content.push({text:`Oluşturulma: ${new Date().toLocaleString("tr-TR")} · Yazı boyutu: 9 punto · Türkçe karakter destekli Roboto`,fontSize:7.5,color:"#64748b",margin:[0,10,0,0]});
+  doc.content.push({text:`Okunma Tarihi: ${pdfReadDateText()}`,fontSize:8,color:"#64748b",margin:[0,10,0,0]});
   const classPart=info.chosen.length===1?info.chosen[0].label:info.chosen.length>1?"coklu_sinif":"sinif";
   globalThis.pdfMake.createPdf(doc).download(pdfFilename(`${exam.examDateText||examDateText(exam)}_${exam.examName}_${classPart}_sonuc_listesi.pdf`));
 }
@@ -824,7 +849,7 @@ function downloadQuestionAnalysisPdf(){
     hLineColor:()=>"#dbe3ef",vLineColor:()=>"#dbe3ef",
     paddingLeft:()=>5,paddingRight:()=>5,paddingTop:()=>5,paddingBottom:()=>5
   }});
-  doc.content.push({text:`Oluşturulma: ${new Date().toLocaleString("tr-TR")} · Yazı boyutu: 9 punto · Türkçe karakter destekli Roboto`,fontSize:7.5,color:"#64748b",margin:[0,10,0,0]});
+  doc.content.push({text:`Okunma Tarihi: ${pdfReadDateText()}`,fontSize:8,color:"#64748b",margin:[0,10,0,0]});
   const classPart=info.chosen.length===1?info.chosen[0].label:info.chosen.length>1?"coklu_sinif":"sinif";
   globalThis.pdfMake.createPdf(doc).download(pdfFilename(`${exam.examDateText||examDateText(exam)}_${exam.examName}_${classPart}_soru_analizi.pdf`));
 }
@@ -832,7 +857,7 @@ function initAdvancedReportUi(){
   const reportExam=$("reportExam");
   if(reportExam&&!reportExam.dataset.advancedBound){
     reportExam.dataset.advancedBound="1";
-    reportExam.addEventListener("change",()=>{activeExamId=reportExam.value;advancedReportExamId="";advancedReportSearch="";openReport()});
+    reportExam.addEventListener("change",()=>{activeExamId=reportExam.value;advancedReportExamId="";advancedReportSearch="";advancedReportClassKeys.clear();reportSelected.clear();clearReportView()});
   }
   document.addEventListener("change",e=>{
     const reportClass=e.target.closest?.("[data-report-class]");
@@ -885,7 +910,7 @@ function initAdvancedReportUi(){
 }
 
 
-function bind(){$$('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));$("activeSchoolSelect").onchange=e=>{activeSchoolId=e.target.value;localStorage.setItem("optikokuma_active_school",activeSchoolId);renderAll()};$("addSchoolBtn").onclick=addSchool;$("addClassesBtn").onclick=addClasses;$("saveStudentBtn").onclick=saveStudentFromForm;$("clearStudentFormBtn").onclick=clearStudentForm;$("studentClassFilter").onchange=renderStudentsTable;$("studentSearch").oninput=renderStudentsTable;$("selectAllStudents").onclick=()=>{$$('.studentCheck').forEach(c=>{c.checked=true;selectedStudentNos.add(c.value)})};$("clearStudentSelection").onclick=()=>{selectedStudentNos.clear();renderStudentsTable()};$("deleteSelectedStudents").onclick=deleteSelectedStudents;$("loadSheetBtn").onclick=loadSheet;$("bulkSelectAll").onclick=()=>{bulkRows.forEach(x=>x.selected=true);renderBulk()};$("bulkClearSelection").onclick=()=>{bulkRows.forEach(x=>x.selected=false);renderBulk()};$("bulkRemoveSelected").onclick=()=>{bulkRows=bulkRows.filter(x=>!x.selected);renderBulk()};$("bulkSaveSelected").onclick=saveBulk;$("examSchool").onchange=()=>renderExamArea(false);$("examSubjectGroup").onchange=()=>renderExamArea(true);$("examSubject").onchange=renderExamPreview;$("examManualSubject").oninput=renderExamPreview;$("examResultMode").onchange=updateResultOptions;$("examScoreBase").oninput=renderExamPreview;["examNetWrongCount","examNetCorrectDeduct"].forEach(id=>{const el=$(id);if(el)el.oninput=renderExamPreview});$("readExamTxt").onclick=readExamTxt;$("saveExamBtn").onclick=saveExam;$("reportSchool").onchange=()=>renderReports(false);$("loadReportBtn").onclick=openReport;$("deleteExamBtn").onclick=deleteExam;$("reportSelectAll").onclick=()=>{$$('.reportCheck').forEach(c=>{c.checked=true;reportSelected.add(c.value)})};$("reportClearSelection").onclick=()=>{reportSelected.clear();openReport()};$("whatsSelected").onclick=()=>whatsappText("selected");$("whatsAll").onclick=()=>whatsappText("all");const copyWhatsBtn=$("copyWhats");if(copyWhatsBtn)copyWhatsBtn.onclick=copyWhatsappOutput;$("cardSchool").onchange=()=>renderStudentCard(false);$("cardClass").onchange=()=>renderStudentCard(true);$("openStudentCard").onclick=openStudentCard;$("exportJsonBtn").onclick=exportJson;$("guideDownloadBtn").onclick=downloadGuide;$("importJsonBtn").onclick=()=>$("jsonImportFile").click();$("jsonImportFile").onchange=importJsonFile;$("clearAllBtn").onclick=clearAll;document.addEventListener("change",e=>{if(e.target.classList.contains("examClassCheck"))renderExamPreview()})}
+function bind(){$$('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));$("activeSchoolSelect").onchange=e=>{activeSchoolId=e.target.value;reportIsOpen=false;localStorage.setItem("optikokuma_active_school",activeSchoolId);renderAll()};$("addSchoolBtn").onclick=addSchool;$("addClassesBtn").onclick=addClasses;$("saveStudentBtn").onclick=saveStudentFromForm;$("clearStudentFormBtn").onclick=clearStudentForm;$("studentClassFilter").onchange=renderStudentsTable;$("studentSearch").oninput=renderStudentsTable;$("selectAllStudents").onclick=()=>{$$('.studentCheck').forEach(c=>{c.checked=true;selectedStudentNos.add(c.value)})};$("clearStudentSelection").onclick=()=>{selectedStudentNos.clear();renderStudentsTable()};$("deleteSelectedStudents").onclick=deleteSelectedStudents;$("loadSheetBtn").onclick=loadSheet;$("bulkSelectAll").onclick=()=>{bulkRows.forEach(x=>x.selected=true);renderBulk()};$("bulkClearSelection").onclick=()=>{bulkRows.forEach(x=>x.selected=false);renderBulk()};$("bulkRemoveSelected").onclick=()=>{bulkRows=bulkRows.filter(x=>!x.selected);renderBulk()};$("bulkSaveSelected").onclick=saveBulk;$("examSchool").onchange=()=>renderExamArea(false);$("examSubjectGroup").onchange=()=>renderExamArea(true);$("examSubject").onchange=renderExamPreview;$("examManualSubject").oninput=renderExamPreview;$("examResultMode").onchange=updateResultOptions;$("examScoreBase").oninput=renderExamPreview;["examNetWrongCount","examNetCorrectDeduct"].forEach(id=>{const el=$(id);if(el)el.oninput=renderExamPreview});$("readExamTxt").onclick=readExamTxt;$("saveExamBtn").onclick=saveExam;$("reportSchool").onchange=()=>renderReports(false);$("loadReportBtn").onclick=openReport;$("deleteExamBtn").onclick=deleteExam;$("reportSelectAll").onclick=()=>{$$('.reportCheck').forEach(c=>{c.checked=true;reportSelected.add(c.value)})};$("reportClearSelection").onclick=()=>{reportSelected.clear();if(reportIsOpen)openReport()};$("whatsSelected").onclick=()=>whatsappText("selected");$("whatsAll").onclick=()=>whatsappText("all");const copyWhatsBtn=$("copyWhats");if(copyWhatsBtn)copyWhatsBtn.onclick=copyWhatsappOutput;$("cardSchool").onchange=()=>renderStudentCard(false);$("cardClass").onchange=()=>renderStudentCard(true);$("openStudentCard").onclick=openStudentCard;$("exportJsonBtn").onclick=exportJson;$("guideDownloadBtn").onclick=downloadGuide;$("importJsonBtn").onclick=()=>$("jsonImportFile").click();$("jsonImportFile").onchange=importJsonFile;$("clearAllBtn").onclick=clearAll;document.addEventListener("change",e=>{if(e.target.classList.contains("examClassCheck"))renderExamPreview()})}
 bind();
 initExtraUi();
 initAdvancedReportUi();
