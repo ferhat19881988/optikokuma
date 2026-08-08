@@ -129,6 +129,16 @@ input,select,textarea,.copyable-text,.whatsapp-box,.waTextArea{text-transform:no
 /* === PROGRAM İÇİ CEVAP ANAHTARI === */
 .answer-key-toolbar{display:grid;grid-template-columns:minmax(105px,.55fr) minmax(170px,1fr);gap:8px;align-items:end}.answer-key-status{margin-top:8px;border:1px solid var(--line);border-radius:12px;padding:9px 10px;background:#fbfdff;color:#475569;font-size:12px;text-transform:none}.answer-key-status.ready{border-color:#bbf7d0;background:#f0fdf4;color:#166534}.answer-key-status.missing{border-color:#fed7aa;background:#fff7ed;color:#9a3412}.answer-key-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:62vh;overflow:auto;padding:2px 4px 2px 0}.answer-key-question{display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px;background:#fff}.answer-key-number{width:30px;height:30px;border-radius:999px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-weight:950;color:#334155}.answer-key-options{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.answer-key-choice{padding:7px 4px;border-radius:9px;background:#eef2f7;color:#334155;border:1px solid #dbe3ef;min-width:0}.answer-key-choice:hover{transform:none}.answer-key-choice.selected{background:#2563eb;color:#fff;border-color:#2563eb}.answer-key-help{margin:0 0 10px;padding:9px 10px;border-radius:12px;background:#eff6ff;color:#1e3a8a;font-size:12px;line-height:1.45;text-transform:none}@media(max-width:600px){.answer-key-toolbar{grid-template-columns:1fr}.answer-key-grid{grid-template-columns:1fr}}
 
+
+
+/* === ÇOKLU CEVAP ANAHTARI MODALI === */
+.answer-key-mode-panel{display:grid;grid-template-columns:minmax(220px,1fr) minmax(220px,1.4fr);gap:10px;align-items:end;margin-bottom:12px;padding:11px;border:1px solid var(--line);border-radius:14px;background:#f8fafc}
+.answer-key-mode-panel label{margin-top:0}.answer-key-mode-note{font-size:12px;color:#475569;line-height:1.45;text-transform:none}
+.answer-key-booklet-tabs{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 10px}.answer-key-booklet-tab{background:#eef2f7;color:#334155;border:1px solid #dbe3ef;padding:8px 12px}.answer-key-booklet-tab.active{background:#0f766e;color:#fff;border-color:#0f766e}.answer-key-booklet-tab.complete::after{content:' ✓';font-weight:950}.answer-key-booklet-title{font-weight:950;color:#172033;margin:3px 0 9px;text-transform:none}
+.answer-key-grid.vertical-columns{display:grid;grid-auto-flow:column;grid-template-rows:repeat(var(--answer-key-rows,10),auto);grid-auto-columns:minmax(235px,1fr);gap:8px;max-height:66vh;overflow:auto;padding:2px 4px 4px 0;align-content:start}.answer-key-grid.vertical-columns .answer-key-question{min-width:235px}
+.answer-key-progress{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 10px}.answer-key-progress .tag{font-size:11px}
+@media(max-width:760px){.answer-key-mode-panel{grid-template-columns:1fr}.answer-key-grid.vertical-columns{grid-auto-flow:row;grid-template-rows:none;grid-template-columns:1fr;grid-auto-columns:auto}.answer-key-grid.vertical-columns .answer-key-question{min-width:0}}
+
 </style>
 </head>
 <body>
@@ -235,14 +245,18 @@ let examRows=[];
 let importedExamMeta={};
 let importedExamFileName="";
 let draftAnswerKey="";
-let answerKeyModalChoices=[];
+let draftAnswerKeyMode="single";
+let draftAnswerKeys={};
+let answerKeyModalChoices={};
+let answerKeyModalMode="single";
+let answerKeyModalActiveBooklet="single";
 let activeExamId="";
 let reportSelected=new Set();
 let reportIsOpen=false;
 let reportOutputDateExamId="";
 let reportOutputDateValue="";
 let reportManualDatePending=false;
-const CHATGPT_GUIDE="CHATGPT OPTİK OKUMA KULLANIM KILAVUZU\n\nAMAÇ\nBu kılavuz yalnızca ÖĞRENCİ optiklerinin okunup Optik Okuma Sistemi'ne aktarılacak TXT dosyasının hazırlanması içindir. Cevap anahtarı artık ChatGPT tarafından istenmez, okunmaz ve TXT içine yazılmaz. Cevap anahtarı sınav oluşturulurken program içindeki A/B/C/D seçim ekranından öğretmen tarafından bir kez girilir ve Firebase'deki sınav kaydında saklanır.\n\nTEMEL AKIŞ\n1. Kullanıcıdan cevap anahtarı isteme. Cevap anahtarı optiği veya 11111 kodlu anahtar kâğıdı isteme.\n2. Gerekliyse ders adını sor.\n3. Gerekliyse sınav adını sor.\n4. Gerekliyse sınav tarihini sor. Tarih verilmezse bugünün tarihini kullan.\n5. Öğrenci cevap optiklerinin bulunduğu ZIP dosyasını iste.\n6. ZIP geldikten sonra yalnızca öğrenci optiklerini oku ve aşağıdaki TXT formatını üret.\n7. Doğru / yanlış / boş ve puan / net hesabı yapma. Bu hesapları program, Firebase'de kayıtlı cevap anahtarını kullanarak yapacaktır.\n\nSORU SAYISI ZORUNLUDUR\nSORU_SAYISI alanı sınavda değerlendirilecek gerçek soru sayısını belirtmelidir. Öğrenci optiğinde 20 balon alanı olsa bile sınav 12 soruluksa SORU_SAYISI=12 yaz. Öğrencinin CEVAPLAR dizisi bu uzunlukta olmalıdır.\n\nKİTAPÇIK TÜRÜ\nOptik formdaki Kitapçık Türü / Grup alanı sınıf bilgisi değildir. A, B, C veya D olarak okunur. Kodlanmamışsa KITAPCIK alanı boş bırakılır ve NOT alanına \"Kitapçık kodlanmamış\" yazılır. Cevap anahtarı tek olduğu için kitapçık türü değerlendirme anahtarını değiştirmez; yalnızca optik kaydı olarak saklanır.\n\nÖĞRENCİ NUMARASI\nBaştaki sıfırlar silinir. 08001, 008001 ve 0008001 aynı öğrencidir: 8001. Numara kodlanmamış veya okunamıyorsa öğrenci satırı atlanmaz; optikte yazan ad ADSOYAD alanına yazılır, NO boş veya 0 bırakılır ve NOT alanına \"Öğrenci no kodlanmamış\" yazılır. Program kaydetmeden önce öğretmenden numarayı tamamlamasını ister.\n\nCEVAP OKUMA KURALLARI\nHer soru için tek koyu balon işaret kabul edilir. Hiç işaret yoksa - yazılır. Birden fazla koyu balon varsa X yazılır. Okunamayan soru varsa ? yazılır. Belirsiz alanlarda tahmin yapılmaz.\n\nCEVAPLAR ALANI\nGeçerli karakterler: A, B, C, D, -, X, ?. Boşluk kullanılmaz. CEVAPLAR uzunluğu SORU_SAYISI ile aynı olmalıdır. Program cevap dizisini kayıtlı cevap anahtarıyla karşılaştırarak doğru, yanlış ve boş sayılarını kendisi hesaplar.\n\nCEVAP ANAHTARI YASAĞI\nTXT içine CEVAP_ANAHTARI, CEVAP_ANAHTARI_A/B/C/D veya benzeri hiçbir cevap anahtarı alanı ekleme. Kullanıcıdan cevap anahtarı görseli isteme. 11111 numaralı bir cevap anahtarı optiği üretme veya öğrenci satırlarına ekleme.\n\nTXT DOSYA ADI\nDers_Sınav Adı_GG.AA.YYYY_ÖğrenciSayısı_student.txt\nÖrnek: Fen Bilimleri_Mevsimler_03.07.2026_10_student.txt\n\nTXT İÇERİK FORMATI\nSINAV_ADI=Mevsimler ve İklim\nSINAV_TARIHI=03.07.2026\nDERS=Fen Bilimleri\nDERS_KATEGORISI=LGS DERSLERİ\nSORU_SAYISI=20\nOGRENCI_SAYISI=10\n\nNO;ADSOYAD;KITAPCIK;CEVAPLAR;NOT\n8001;AHMET FARUK ÖZKAN;A;BDACBADCBADCBCADAD--;Okundu\n0;ZEYNEP YILMAZ;;AC-BACDBACCCACDBAC--;Öğrenci no kodlanmamış | Kitapçık kodlanmamış\n8003;ELİF DEMİR;D;--------------------;Boş kağıt\n\nNOT ALANI ÖRNEKLERİ\nOkundu | Boş kağıt | Kitapçık kodlanmamış | Kitapçık çoklu işaret | Kitapçık okunamadı | Öğrenci no kodlanmamış | Çoklu işaret: 4, 9, 12 | Okunamadı: 6, 7 | Numara belirsiz | Fotoğraf kesik | Cevap alanı bulanık\n\nSON KONTROL LİSTESİ\n1. Cevap anahtarı kullanıcıdan istenmedi mi?\n2. Yalnızca öğrenci optikleri okundu mu?\n3. SORU_SAYISI doğru mu?\n4. Her öğrenci için CEVAPLAR uzunluğu SORU_SAYISI ile aynı mı?\n5. CEVAPLAR yalnızca A/B/C/D/-/X/? karakterlerinden mi oluşuyor?\n6. Öğrenci numarasındaki baştaki sıfırlar silindi mi?\n7. Numara okunamadığında öğrenci satırı korunup NOT yazıldı mı?\n8. Kitapçık alanı sınıf gibi kullanılmadı mı?\n9. TXT içine cevap anahtarı eklenmedi mi?\n10. TXT içine doğru, yanlış, boş, puan veya net hesabı eklenmedi mi?\n\nCHATGPT'YE VERİLECEK HAZIR KOMUT\nBu kılavuza göre yalnızca öğrenci optiklerini oku. Kullanıcıdan cevap anahtarı isteme ve cevap anahtarı optiği okutma. Gerekliyse ders adını, sınav adını ve tarihi al; sonra öğrenci optiklerinin ZIP dosyasını iste. ZIP geldikten sonra her öğrencinin numarasını, ad-soyadını, kitapçık türünü ve soru bazlı cevap dizisini oku. CEVAPLAR için yalnızca A, B, C, D, -, X, ? kullan. Belirsiz alanlarda tahmin yapma. Doğru, yanlış, boş, net veya puan hesaplama. Cevap anahtarı alanı üretme. Sonucu yalnızca bu kılavuzdaki öğrenci TXT formatında oluştur.";
+const CHATGPT_GUIDE="CHATGPT OPTİK OKUMA KULLANIM KILAVUZU\n\nAMAÇ\nBu kılavuz yalnızca ÖĞRENCİ optiklerinin okunup Optik Okuma Sistemi'ne aktarılacak TXT dosyasının hazırlanması içindir. Cevap anahtarı artık ChatGPT tarafından istenmez, okunmaz ve TXT içine yazılmaz. Cevap anahtarı sınav oluşturulurken program içindeki A/B/C/D seçim ekranından öğretmen tarafından bir kez girilir ve Firebase'deki sınav kaydında saklanır.\n\nTEMEL AKIŞ\n1. Kullanıcıdan cevap anahtarı isteme. Cevap anahtarı optiği veya 11111 kodlu anahtar kâğıdı isteme.\n2. Gerekliyse ders adını sor.\n3. Gerekliyse sınav adını sor.\n4. Gerekliyse sınav tarihini sor. Tarih verilmezse bugünün tarihini kullan.\n5. Öğrenci cevap optiklerinin bulunduğu ZIP dosyasını iste.\n6. ZIP geldikten sonra yalnızca öğrenci optiklerini oku ve aşağıdaki TXT formatını üret.\n7. Doğru / yanlış / boş ve puan / net hesabı yapma. Bu hesapları program, Firebase'de kayıtlı cevap anahtarını kullanarak yapacaktır.\n\nSORU SAYISI ZORUNLUDUR\nSORU_SAYISI alanı sınavda değerlendirilecek gerçek soru sayısını belirtmelidir. Öğrenci optiğinde 20 balon alanı olsa bile sınav 12 soruluksa SORU_SAYISI=12 yaz. Öğrencinin CEVAPLAR dizisi bu uzunlukta olmalıdır.\n\nKİTAPÇIK TÜRÜ\nOptik formdaki Kitapçık Türü / Grup alanı sınıf bilgisi değildir. A, B, C veya D olarak okunur. Kodlanmamışsa KITAPCIK alanı boş bırakılır ve NOT alanına \"Kitapçık kodlanmamış\" yazılır. Programda öğretmen cevap anahtarı eklerken Tek, A-B veya A-B-C-D anahtar düzenlerinden birini seçer. Tek cevap anahtarında kitapçık harfi değerlendirmeyi değiştirmez. A-B veya A-B-C-D seçildiyse öğrencinin KITAPCIK alanı hangi cevap anahtarının kullanılacağını belirler; kitapçık kodlanmamışsa program önizlemede öğretmenden ilgili öğrenci için kitapçık seçmesini ister.\n\nÖĞRENCİ NUMARASI\nBaştaki sıfırlar silinir. 08001, 008001 ve 0008001 aynı öğrencidir: 8001. Numara kodlanmamış veya okunamıyorsa öğrenci satırı atlanmaz; optikte yazan ad ADSOYAD alanına yazılır, NO boş veya 0 bırakılır ve NOT alanına \"Öğrenci no kodlanmamış\" yazılır. Program kaydetmeden önce öğretmenden numarayı tamamlamasını ister.\n\nCEVAP OKUMA KURALLARI\nHer soru için tek koyu balon işaret kabul edilir. Hiç işaret yoksa - yazılır. Birden fazla koyu balon varsa X yazılır. Okunamayan soru varsa ? yazılır. Belirsiz alanlarda tahmin yapılmaz.\n\nCEVAPLAR ALANI\nGeçerli karakterler: A, B, C, D, -, X, ?. Boşluk kullanılmaz. CEVAPLAR uzunluğu SORU_SAYISI ile aynı olmalıdır. Program cevap dizisini kayıtlı cevap anahtarıyla karşılaştırarak doğru, yanlış ve boş sayılarını kendisi hesaplar.\n\nCEVAP ANAHTARI YASAĞI\nTXT içine CEVAP_ANAHTARI, CEVAP_ANAHTARI_A/B/C/D veya benzeri hiçbir cevap anahtarı alanı ekleme. Kullanıcıdan cevap anahtarı görseli isteme. 11111 numaralı bir cevap anahtarı optiği üretme veya öğrenci satırlarına ekleme.\n\nTXT DOSYA ADI\nDers_Sınav Adı_GG.AA.YYYY_ÖğrenciSayısı_student.txt\nÖrnek: Fen Bilimleri_Mevsimler_03.07.2026_10_student.txt\n\nTXT İÇERİK FORMATI\nSINAV_ADI=Mevsimler ve İklim\nSINAV_TARIHI=03.07.2026\nDERS=Fen Bilimleri\nDERS_KATEGORISI=LGS DERSLERİ\nSORU_SAYISI=20\nOGRENCI_SAYISI=10\n\nNO;ADSOYAD;KITAPCIK;CEVAPLAR;NOT\n8001;AHMET FARUK ÖZKAN;A;BDACBADCBADCBCADAD--;Okundu\n0;ZEYNEP YILMAZ;;AC-BACDBACCCACDBAC--;Öğrenci no kodlanmamış | Kitapçık kodlanmamış\n8003;ELİF DEMİR;D;--------------------;Boş kağıt\n\nNOT ALANI ÖRNEKLERİ\nOkundu | Boş kağıt | Kitapçık kodlanmamış | Kitapçık çoklu işaret | Kitapçık okunamadı | Öğrenci no kodlanmamış | Çoklu işaret: 4, 9, 12 | Okunamadı: 6, 7 | Numara belirsiz | Fotoğraf kesik | Cevap alanı bulanık\n\nSON KONTROL LİSTESİ\n1. Cevap anahtarı kullanıcıdan istenmedi mi?\n2. Yalnızca öğrenci optikleri okundu mu?\n3. SORU_SAYISI doğru mu?\n4. Her öğrenci için CEVAPLAR uzunluğu SORU_SAYISI ile aynı mı?\n5. CEVAPLAR yalnızca A/B/C/D/-/X/? karakterlerinden mi oluşuyor?\n6. Öğrenci numarasındaki baştaki sıfırlar silindi mi?\n7. Numara okunamadığında öğrenci satırı korunup NOT yazıldı mı?\n8. Kitapçık alanı sınıf gibi kullanılmadı mı?\n9. TXT içine cevap anahtarı eklenmedi mi?\n10. TXT içine doğru, yanlış, boş, puan veya net hesabı eklenmedi mi?\n\nCHATGPT'YE VERİLECEK HAZIR KOMUT\nBu kılavuza göre yalnızca öğrenci optiklerini oku. Kullanıcıdan cevap anahtarı isteme ve cevap anahtarı optiği okutma. Gerekliyse ders adını, sınav adını ve tarihi al; sonra öğrenci optiklerinin ZIP dosyasını iste. ZIP geldikten sonra her öğrencinin numarasını, ad-soyadını, kitapçık türünü ve soru bazlı cevap dizisini oku. CEVAPLAR için yalnızca A, B, C, D, -, X, ? kullan. Belirsiz alanlarda tahmin yapma. Doğru, yanlış, boş, net veya puan hesaplama. Cevap anahtarı alanı üretme. Sonucu yalnızca bu kılavuzdaki öğrenci TXT formatında oluştur.";
 function r(path=""){return ref(db,path?`${rootPath}/${path}`:rootPath)}
 function esc(s){return String(s??"").replace(/[&<>'"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[m]))}
 function toast(msg){const box=$("toast");const el=document.createElement("div");el.textContent=msg;box.appendChild(el);setTimeout(()=>{el.remove()},3200)}
@@ -745,6 +759,234 @@ const __appendBaseSaveExam=saveExam;
 saveExam=async function(){if(!isAppendMode())return __appendBaseSaveExam();const payload=buildAppendPayload();if(payload.errors?.length){await simpleActionModal({title:"TÜM HATALAR ÇÖZÜLMELİ",html:`<div class="review-item bad"><b>Hiçbir öğrenci kaydedilmedi.</b><br>Tüm satırlar düzeltilmeden işlem yapılamaz.</div><div class="review-list">${payload.errors.map(x=>`<div class="review-item bad">${esc(x)}</div>`).join("")}</div>`,showOk:false,cancelText:"Geri Dön"});return}if(!payload.summary.writeCount){await simpleActionModal({title:"KAYDEDİLECEK SONUÇ YOK",html:"<div class='review-item warn'>Tüm satırlar atlandı. Sınavda herhangi bir değişiklik yapılmadı.</div>",showOk:false,cancelText:"Geri Dön"});return}const ok=await simpleActionModal({title:"ÖĞRENCİLERİ SINAVA EKLE",html:appendReviewHtml(payload),okText:"Tamam ve Kaydet",cancelText:"Geri Dön",okClass:payload.summary.replaced?"red":"green"});if(!ok)return toast("Ekleme işlemi iptal edildi.");let abortReason="";try{const tx=await runTransaction(r(),current=>{abortReason="";current=current||{};current.exams=current.exams||{};const liveExam=current.exams[payload.exam.id];if(!liveExam){abortReason="Kayıtlı sınav artık bulunamıyor.";return}liveExam.processedFileHashes=liveExam.processedFileHashes||{};if(liveExam.processedFileHashes[importedExamFileHash]){abortReason="Bu TXT dosyası başka bir işlem tarafından daha önce sınava eklenmiş.";return}current.examResults=current.examResults||{};const liveResults=current.examResults[payload.exam.id]||{};for(const [key,res] of Object.entries(payload.resultsToWrite)){const operation=payload.resultOperations[key]||"add";const matches=resultEntriesForStudent("",res.studentNo,liveResults);if(operation==="add"&&(liveResults[key]||matches.length)){abortReason=`${res.studentNo} öğrenci numarası kayıt sırasında başka bir sonuçla çakıştı.`;return}if(operation==="replace"){if(!liveResults[key]){abortReason=`${res.studentNo} numaralı öğrencinin değiştirilecek eski sonucu artık bulunmuyor.`;return}if(matches.length!==1||matches[0][0]!==key){abortReason=`${res.studentNo} öğrenci numarası kayıt sırasında birden fazla sonuçla çakıştı.`;return}}}const mergedResults={...liveResults,...payload.resultsToWrite};const duplicateResults=duplicateResultStudentNos(mergedResults);if(duplicateResults.length){abortReason=`Öğrenci numarası çakışması engellendi: ${duplicateResults.map(x=>x.no).join(", ")}.`;return}current.students=current.students||{};for(const [no,data] of Object.entries(payload.studentsToWrite)){const liveStudent=current.students[no];if(liveStudent){abortReason=`${no} öğrenci numarası kayıt sırasında başka bir öğrenci kaydında kullanılmaya başlandı.`;return}current.students[no]=data}current.examResults[payload.exam.id]=mergedResults;liveExam.classIds=payload.classIds;liveExam.importedCount=Object.keys(mergedResults).length;liveExam.updatedAt=now();liveExam.processedFileHashes[importedExamFileHash]=true;return current},{applyLocally:false});if(!tx.committed){await simpleActionModal({title:"KAYIT GÜVENLİK KONTROLÜ",html:`<div class="review-item bad"><b>Hiçbir değişiklik kaydedilmedi.</b><br>${esc(abortReason||"Kayıt sırasında veri değişti. Lütfen önizlemeyi yeniden açın.")}</div>`,showOk:false,cancelText:"Kapat"});return}}catch(error){await simpleActionModal({title:"KAYIT HATASI",html:`<div class="review-item bad"><b>Hiçbir değişiklik kaydedilemedi.</b><br>${esc(error?.message||String(error))}</div>`,showOk:false,cancelText:"Kapat"});return}activeExamId=payload.exam.id;resetExamReader();toast(`${payload.summary.added} öğrenci eklendi, ${payload.summary.replaced} sonuç değiştirildi.`);setTab("reports");renderReports(false)}
 const __appendBaseInitExtraUi=initExtraUi;
 initExtraUi=function(){__appendBaseInitExtraUi();const mode=$("examOperationMode");if(mode&&!mode.dataset.bound){mode.dataset.bound="1";mode.addEventListener("change",()=>{resetExamReader();fillAppendExamSelect();applyAppendModeUi();renderExamPreview()})}const target=$("examTargetExam");if(target&&!target.dataset.bound){target.dataset.bound="1";target.addEventListener("change",()=>{resetExamReader();applyAppendModeUi();renderExamPreview()})}const quick=$("appendToExamBtn");if(quick&&!quick.dataset.bound){quick.dataset.bound="1";quick.addEventListener("click",()=>{const id=$("reportExam")?.value||activeExamId;if(!id)return toast("Önce sınav seçin.");const exam=state.exams?.[id];if(!exam)return toast("Sınav bulunamadı.");activeSchoolId=exam.schoolId;localStorage.setItem("optikokuma_active_school",activeSchoolId);$("examSchool").value=exam.schoolId;$("examOperationMode").value="append";fillAppendExamSelect(id);$("examTargetExam").value=id;setTab("exam");applyAppendModeUi();renderExamPreview()})}document.addEventListener("change",e=>{cacheDecisionElement(e.target);if(isAppendMode()&&(e.target.classList.contains("manualStudentNo")||e.target.classList.contains("manualBooklet")))renderAppendPreview()});document.addEventListener("input",e=>cacheDecisionElement(e.target));applyAppendModeUi()}
+
+
+/* === TEK / A-B / A-B-C-D CEVAP ANAHTARI === */
+function answerKeyModeBooklets(mode=draftAnswerKeyMode){
+  if(mode==="AB")return["A","B"];
+  if(mode==="ABCD")return["A","B","C","D"];
+  return[];
+}
+function answerKeyModeLabel(mode=draftAnswerKeyMode){
+  if(mode==="AB")return"A-B";
+  if(mode==="ABCD")return"A-B-C-D";
+  return"Tek";
+}
+function inferAnswerKeyMode(source={}){
+  const map=normalizedAnswerKeyMap(source);
+  if(["A","B","C","D"].every(k=>validAnswerKey(map[k]||"")))return"ABCD";
+  if(["A","B"].every(k=>validAnswerKey(map[k]||"")))return"AB";
+  return"single";
+}
+function manualDraftKeyConfig(){
+  if(draftAnswerKeyMode==="single")return{mode:"single",answerKey:cleanAnswerKey(draftAnswerKey),answerKeys:{}};
+  const answerKeys={};
+  answerKeyModeBooklets(draftAnswerKeyMode).forEach(b=>{const key=cleanAnswerKey(draftAnswerKeys?.[b]);if(key)answerKeys[b]=key});
+  return{mode:draftAnswerKeyMode,answerKey:"",answerKeys};
+}
+function effectiveAnswerKeyConfig(){
+  const manual=manualDraftKeyConfig();
+  if(manual.answerKey||Object.keys(manual.answerKeys).length)return manual;
+  const legacyMap=normalizedAnswerKeyMap(importedExamMeta||{});
+  if(Object.keys(legacyMap).length){const mode=inferAnswerKeyMode({answerKeys:legacyMap});return{mode,answerKey:"",answerKeys:legacyMap}}
+  const legacySingle=cleanAnswerKey(importedExamMeta?.answerKey);
+  return{mode:"single",answerKey:legacySingle,answerKeys:{}};
+}
+function completeAnswerKeyConfig(cfg,count=0){
+  const q=Number(count||answerKeyQuestionCount(cfg)||0);
+  if(cfg.mode==="single")return validAnswerKey(cfg.answerKey,q);
+  const req=answerKeyModeBooklets(cfg.mode);
+  return req.length>0&&req.every(b=>validAnswerKey(cfg.answerKeys?.[b]||"",q));
+}
+effectiveDraftAnswerKey=function(){
+  const cfg=effectiveAnswerKeyConfig();
+  return cleanAnswerKey(cfg.answerKey)||Object.values(cfg.answerKeys||{}).map(cleanAnswerKey).find(Boolean)||"";
+};
+resolveQuestionCount=function(row={},examOverride=null){
+  const meta=examOverride||importedExamMeta||{};
+  const keyLen=answerKeyQuestionCount(examOverride||effectiveAnswerKeyConfig())||answerKeyQuestionCount(meta);
+  if(examOverride)return Number(meta.totalQuestions||meta.questionCount||keyLen||row.total||0)||0;
+  const manual=Number($("examQuestionCount")?.value||0);
+  return Number(manual||keyLen||meta.totalQuestions||meta.questionCount||row.total||Math.max(0,...examRows.map(x=>Number(x.total||0))))||0;
+};
+function answerKeySummaryHtml(cfg,count){
+  if(cfg.mode==="single")return `Tek cevap anahtarı · <b>${count}</b> soru`;
+  return `${answerKeyModeLabel(cfg.mode)} cevap anahtarı · <b>${count}</b> soru · ${answerKeyModeBooklets(cfg.mode).map(b=>`${b}: ${cleanAnswerKey(cfg.answerKeys?.[b]).length}`).join(" · ")}`;
+}
+renderAnswerKeyStatus=function(examOverride=null){
+  const box=$("examAnswerKeyStatus"),input=$("examQuestionCount"),btn=$("editAnswerKeyBtn");if(!box)return;
+  const exam=examOverride||(isAppendMode()?selectedAppendExam():null);
+  if(exam){
+    const mode=inferAnswerKeyMode(exam),keyCount=answerKeyQuestionCount(exam),has=keyCount>0;
+    if(input)input.value=Number(exam.totalQuestions||keyCount||0)||"";
+    if(btn)btn.textContent="Cevap Anahtarı Kayıtlı";
+    box.className=`answer-key-status ${has?"ready":"missing"}`;
+    box.innerHTML=has?`Firebase'de kayıtlı ${esc(answerKeyModeLabel(mode))} cevap anahtarı · <b>${keyCount}</b> soru`:`Bu kayıtlı sınavda cevap anahtarı bulunmuyor.`;
+    return;
+  }
+  const q=Number(input?.value||resolveQuestionCount()||0),cfg=effectiveAnswerKeyConfig(),ready=completeAnswerKeyConfig(cfg,q);
+  if(btn)btn.textContent=ready?"Cevap Anahtarını Düzenle":"Cevap Anahtarı Gir";
+  box.className=`answer-key-status ${ready?"ready":"missing"}`;
+  box.innerHTML=ready?`${answerKeySummaryHtml(cfg,q)}. Sınav kaydedildiğinde Firebase'e birlikte yazılacak.`:`${q?`${q} soru için cevap anahtarı henüz tamamlanmadı.`:"Soru sayısını girin veya öğrenci TXT'sini önizleyin."} Cevap anahtarı düzenini Tek, A-B veya A-B-C-D olarak siz seçeceksiniz.`;
+};
+renderExamMeta=function(){
+  const m=importedExamMeta||{},q=resolveQuestionCount();
+  if(!examRows.length){$("examMetaBox").innerHTML="TXT bekleniyor.";renderAnswerKeyStatus();return}
+  const cfg=effectiveAnswerKeyConfig(),keyInfo=completeAnswerKeyConfig(cfg,q)?`${answerKeyModeLabel(cfg.mode)} anahtar hazır`:"Anahtar bekleniyor";
+  $("examMetaBox").innerHTML=`<div class="row"><span class="tag">${esc(m.examName||"Sınav")}</span><span class="tag">${esc(m.examDate?inputToTrDate(m.examDate):"")}</span><span class="tag">${esc(m.subject||currentExamSubject())}</span><span class="tag gray">${q} soru</span><span class="tag orange">${esc(keyInfo)}</span></div>`;
+  renderAnswerKeyStatus();
+};
+applyExamMeta=function(meta){
+  const incoming={...(meta||{})},parsedCount=Number(incoming.questionCount||incoming.totalQuestions||0);
+  const manual=manualDraftKeyConfig(),manualCount=answerKeyQuestionCount(manual);
+  if(parsedCount&&manualCount&&parsedCount!==manualCount){draftAnswerKey="";draftAnswerKeys={};draftAnswerKeyMode="single"}
+  const current=manualDraftKeyConfig(),hasManual=!!(current.answerKey||Object.keys(current.answerKeys).length);
+  importedExamMeta={...incoming,answerKey:hasManual?current.answerKey:(incoming.answerKey||""),answerKeys:hasManual?{...current.answerKeys}:{...((incoming.answerKeys)||{})}};
+  const groupNames=["LGS DERSLERİ","TYT","AYT","Manuel Ders"];
+  if(incoming.subjectGroup){const foundGroup=groupNames.find(g=>cleanKey(g)===cleanKey(incoming.subjectGroup));if(foundGroup)$("examSubjectGroup").value=foundGroup}
+  renderExamArea(true);
+  if(incoming.subject){const opts=Array.from($("examSubject").options).map(o=>o.value);const found=opts.find(o=>cleanKey(o)===cleanKey(incoming.subject));if(found)$("examSubject").value=found;else{$("examSubjectGroup").value="Manuel Ders";renderExamArea(true);$("examManualSubject").value=incoming.subject}}
+  renderExamMeta();
+};
+currentManualBooklet=function(i,row={}){const el=document.querySelector(`.manualBooklet[data-i="${i}"]`);return normalizeBooklet(el?el.value:(row.booklet||""))};
+needsBookletSelection=function(row,meta=importedExamMeta){if(answerKeyCount(meta)<=1)return false;const b=normalizeBooklet(row?.booklet);return !b||!cleanAnswerKey(meta.answerKeys?.[b])};
+bookletSelectHtml=function(row,i,meta=importedExamMeta){const keyed=Object.keys(meta.answerKeys||{}).filter(k=>cleanAnswerKey(meta.answerKeys[k])).map(normalizeBooklet).filter(Boolean);const current=normalizeBooklet(row.booklet);if(keyed.length<=1)return `<span class="tag gray">${esc(current||"Tek/Belirsiz")}</span>`;if(current&&keyed.includes(current))return `<span class="tag gray">${esc(current)}</span>`;const selected=currentManualBooklet(i,row);const opts=[...new Set(keyed)].sort().map(b=>`<option value="${esc(b)}" ${selected===b?"selected":""}>${esc(b)}</option>`).join("");const warn=current&&!keyed.includes(current)?`<div class="mini" style="color:#b45309;margin-bottom:4px">Optikte ${esc(current)} işaretli; bu sınavın anahtarlarında yok.</div>`:"";return `${warn}<select class="manualBooklet" data-i="${i}"><option value="">Kitapçık seç</option>${opts}</select>`};
+applyDraftAnswerKeyToRows=function(){
+  const cfg=effectiveAnswerKeyConfig(),q=Number($("examQuestionCount")?.value||answerKeyQuestionCount(cfg)||0);
+  if(!completeAnswerKeyConfig(cfg,q))return;
+  importedExamMeta={...(importedExamMeta||{}),questionCount:q,totalQuestions:q,answerKey:cfg.answerKey,answerKeys:{...(cfg.answerKeys||{})}};
+  examRows=examRows.map(row=>{
+    const out={...row,total:q};
+    if(out.answers){
+      const fitted=fitAnswersToQuestionCount(out.answers,q);
+      out.answers=fitted.answers;out.answerLengthOriginal=fitted.original;out.answerPadded=fitted.padded;out.answerTrimmed=fitted.trimmed;
+      const key=getAnswerKeyForBooklet(out.booklet,importedExamMeta);
+      if(key)Object.assign(out,compareAnswers(out.answers,key));else{out.correct=0;out.wrong=0;out.blank=0}
+    }
+    return out;
+  });
+  renderExamPreview();renderAnswerKeyStatus();
+};
+function answerKeyModalChoiceArray(key,count){
+  const src=key==="single"?cleanAnswerKey(draftAnswerKey||importedExamMeta?.answerKey):cleanAnswerKey(draftAnswerKeys?.[key]||importedExamMeta?.answerKeys?.[key]);
+  return Array.from({length:count},(_,i)=>src.length===count?src[i]:"");
+}
+function answerKeyModalRequiredKeys(mode=answerKeyModalMode){return mode==="single"?["single"]:answerKeyModeBooklets(mode)}
+function answerKeyModalKeyComplete(key,count){return (answerKeyModalChoices?.[key]||[]).length===count&&(answerKeyModalChoices[key]||[]).every(Boolean)}
+answerKeyModalHtml=function(count){
+  const req=answerKeyModalRequiredKeys();
+  if(!req.includes(answerKeyModalActiveBooklet))answerKeyModalActiveBooklet=req[0];
+  const active=answerKeyModalActiveBooklet,rows=Math.max(1,Math.min(10,count));
+  const progress=req.map(k=>`<span class="tag ${answerKeyModalKeyComplete(k,count)?"green":"orange"}">${k==="single"?"TEK":k}: ${answerKeyModalKeyComplete(k,count)?"Tamam":"Eksik"}</span>`).join("");
+  const tabs=req.length>1?`<div class="answer-key-booklet-tabs">${req.map(k=>`<button type="button" class="answer-key-booklet-tab ${active===k?"active":""} ${answerKeyModalKeyComplete(k,count)?"complete":""}" data-answer-booklet-tab="${k}">${k} Anahtarı</button>`).join("")}</div>`:"";
+  return `<div class="answer-key-help">Önce cevap anahtarı düzenini seçin. Sorular 1, 2, 3, 4… şeklinde alt alta ilerler; ilk sütun dolunca kalan sorular yan sütuna geçer.</div><div class="answer-key-mode-panel"><div><label>Cevap anahtarı düzeni</label><select id="answerKeyModeSelect"><option value="single" ${answerKeyModalMode==="single"?"selected":""}>Tek cevap anahtarı</option><option value="AB" ${answerKeyModalMode==="AB"?"selected":""}>A-B cevap anahtarı</option><option value="ABCD" ${answerKeyModalMode==="ABCD"?"selected":""}>A-B-C-D cevap anahtarı</option></select></div><div class="answer-key-mode-note">Bu seçim yalnızca kaç ayrı cevap anahtarı gireceğinizi belirler. Öğrencinin optiğindeki kitapçık harfi, çoklu anahtar seçildiğinde ilgili anahtarla otomatik eşleştirilir.</div></div><div class="answer-key-progress">${progress}</div>${tabs}<div class="answer-key-booklet-title">${active==="single"?"TEK CEVAP ANAHTARI":`${active} CEVAP ANAHTARI`}</div><div class="answer-key-grid vertical-columns" style="--answer-key-rows:${rows}">${Array.from({length:count},(_,i)=>`<div class="answer-key-question" data-answer-question="${i}"><div class="answer-key-number">${i+1}</div><div class="answer-key-options">${["A","B","C","D"].map(letter=>`<button type="button" class="answer-key-choice ${(answerKeyModalChoices?.[active]||[])[i]===letter?"selected":""}" data-answer-index="${i}" data-answer-value="${letter}" data-answer-booklet="${active}">${letter}</button>`).join("")}</div></div>`).join("")}</div>`;
+};
+function refreshAnswerKeyModalContent(count){const host=$("answerKeyModalContent");if(!host)return;host.innerHTML=answerKeyModalHtml(count);bindAnswerKeyModalInteractions(count)}
+function bindAnswerKeyModalInteractions(count){
+  const mode=$("answerKeyModeSelect");
+  if(mode)mode.onchange=()=>{answerKeyModalMode=mode.value;const req=answerKeyModalRequiredKeys();req.forEach(k=>{if(!Array.isArray(answerKeyModalChoices[k]))answerKeyModalChoices[k]=answerKeyModalChoiceArray(k,count)});answerKeyModalActiveBooklet=req[0];refreshAnswerKeyModalContent(count)};
+  $$('[data-answer-booklet-tab]').forEach(b=>b.onclick=()=>{answerKeyModalActiveBooklet=b.dataset.answerBookletTab;refreshAnswerKeyModalContent(count)});
+  $$('.answer-key-choice').forEach(button=>button.onclick=()=>{
+    const i=Number(button.dataset.answerIndex),k=button.dataset.answerBooklet;
+    answerKeyModalChoices[k][i]=button.dataset.answerValue;
+    const row=button.closest('[data-answer-question]');row?.querySelectorAll('.answer-key-choice').forEach(x=>x.classList.toggle('selected',x===button));
+    $$('[data-answer-booklet-tab]').forEach(t=>{if(t.dataset.answerBookletTab===k)t.classList.toggle('complete',answerKeyModalKeyComplete(k,count))});
+    const progress=$("answerKeyModalContent")?.querySelector('.answer-key-progress');
+    if(progress)progress.innerHTML=answerKeyModalRequiredKeys().map(key=>`<span class="tag ${answerKeyModalKeyComplete(key,count)?"green":"orange"}">${key==="single"?"TEK":key}: ${answerKeyModalKeyComplete(key,count)?"Tamam":"Eksik"}</span>`).join("");
+  });
+}
+openAnswerKeyModal=async function(forceCount=0){
+  if(isAppendMode())return;
+  const input=$("examQuestionCount"),count=Number(forceCount||input?.value||resolveQuestionCount()||0);
+  if(!(count>0))return toast("Önce soru sayısını girin veya öğrenci TXT'sini önizleyin.");
+  if(input)input.value=count;
+  const manual=manualDraftKeyConfig(),sourceHasManual=manual.answerKey||Object.keys(manual.answerKeys).length;
+  answerKeyModalMode=sourceHasManual?draftAnswerKeyMode:inferAnswerKeyMode(importedExamMeta||{});
+  answerKeyModalChoices={single:answerKeyModalChoiceArray("single",count),A:answerKeyModalChoiceArray("A",count),B:answerKeyModalChoiceArray("B",count),C:answerKeyModalChoiceArray("C",count),D:answerKeyModalChoiceArray("D",count)};
+  answerKeyModalActiveBooklet=answerKeyModalRequiredKeys(answerKeyModalMode)[0];
+  const modalPromise=simpleActionModal({
+    title:`CEVAP ANAHTARI · ${count} SORU`,
+    html:`<div id="answerKeyModalContent">${answerKeyModalHtml(count)}</div>`,
+    okText:"Cevap Anahtarını Kaydet",cancelText:"Vazgeç",okClass:"green",wide:true,
+    onOk:()=>{
+      const req=answerKeyModalRequiredKeys(),missing=[];
+      req.forEach(k=>(answerKeyModalChoices[k]||[]).forEach((v,i)=>{if(!v)missing.push(`${k==="single"?"Tek":k}-${i+1}`)}));
+      if(missing.length){toast(`Seçilmemiş sorular var: ${missing.slice(0,12).join(", ")}${missing.length>12?" …":""}`);return false}
+      draftAnswerKeyMode=answerKeyModalMode;
+      if(draftAnswerKeyMode==="single"){draftAnswerKey=answerKeyModalChoices.single.join("");draftAnswerKeys={}}
+      else{draftAnswerKey="";draftAnswerKeys={};answerKeyModeBooklets(draftAnswerKeyMode).forEach(b=>draftAnswerKeys[b]=answerKeyModalChoices[b].join(""))}
+      const cfg=manualDraftKeyConfig();
+      importedExamMeta={...(importedExamMeta||{}),questionCount:count,totalQuestions:count,answerKey:cfg.answerKey,answerKeys:{...cfg.answerKeys}};
+      applyDraftAnswerKeyToRows();
+      toast(`${answerKeyModeLabel(draftAnswerKeyMode)} cevap anahtarı hazırlandı. Sınavla birlikte Firebase'e kaydedilecek.`);
+      return true;
+    }
+  });
+  bindAnswerKeyModalInteractions(count);
+  await modalPromise;
+  renderAnswerKeyStatus();
+};
+resetExamReader=function(){
+  examRows=[];importedExamMeta={};importedExamFileName="";draftAnswerKey="";draftAnswerKeyMode="single";draftAnswerKeys={};answerKeyModalChoices={};answerKeyModalMode="single";answerKeyModalActiveBooklet="single";
+  const q=$("examQuestionCount");if(q)q.value="";const f=$("examTxtFile");if(f)f.value="";const u=$("unknownArea");if(u)u.innerHTML="";
+  renderExamPreview();renderExamMeta();renderAnswerKeyStatus();
+};
+
+buildExamSavePayload=function(){
+  const schoolId=$("examSchool").value||activeSchoolId,classIds=selectedExamClassIds(),meta=importedExamMeta||{},mode=currentResultMode();
+  const examName=String(meta.examName||importedExamFileName.replace(/\.[^.]+$/," ")||"Sınav").trim(),examDate=meta.examDate||todayInput(),totalQuestions=resolveQuestionCount();
+  const cfg=effectiveAnswerKeyConfig(),examId=push(r("exams")).key,configuredBooklets=cfg.mode==="single"?[]:answerKeyModeBooklets(cfg.mode);
+  const exam={id:examId,schoolId,classIds,subjectGroup:$("examSubjectGroup").value,subject:currentExamSubject(),examName,examDate,examDateText:inputToTrDate(examDate),totalQuestions,scoreBase:isScoreMode(mode)?Number($("examScoreBase").value||100):0,netWrongCount:isNetMode(mode)?Number($("examNetWrongCount")?.value||3):0,netCorrectDeduct:isNetMode(mode)?Number($("examNetCorrectDeduct")?.value||1):0,resultMode:mode,showNet:isNetMode(mode),showScore:isScoreMode(mode),answerKey:cfg.answerKey,answerKeys:{...(cfg.answerKeys||{})},answerKeyMode:cfg.mode,answerKeySource:"manual_program",answerKeyUpdatedAt:now(),bookletTypes:[...new Set([...configuredBooklets,...examRows.map((x,i)=>currentManualBooklet(i,x)||normalizeBooklet(x.booklet)).filter(Boolean)])],sourceFile:importedExamFileName,createdAt:now(),updatedAt:now()};
+  const results={},excluded=[],studentsToSave=[],errors=[];
+  if(!completeAnswerKeyConfig(cfg,totalQuestions))errors.push(`${answerKeyModeLabel(cfg.mode)} cevap anahtarı eksik veya soru sayısıyla uyumsuz.`);
+  let matched=0,guestCount=0,addedStudentCount=0,missingDetails=0,manualNoCount=0,manualBookletCount=0;
+  for(let i=0;i<examRows.length;i++){
+    const original=examRows[i];let no=currentManualNo(i,original);
+    if(isMissingNo(original)){if(!no||no==="0"){errors.push(`${i+1}. satır: ${original.name||"İsimsiz optik"} için öğrenci no girilmedi.`);continue}manualNoCount++}
+    const chosenBook=currentManualBooklet(i,original);
+    if(examHasMultipleKeys(exam)&&!chosenBook){errors.push(`${i+1}. satır: ${original.name||no} için kitapçık seçilmedi.`);continue}
+    if(chosenBook&&examHasMultipleKeys(exam)&&!cleanAnswerKey(exam.answerKeys?.[chosenBook])){errors.push(`${i+1}. satır: ${chosenBook} kitapçığı için cevap anahtarı tanımlı değil.`);continue}
+    if(!normalizeBooklet(original.booklet)&&chosenBook&&examHasMultipleKeys(exam))manualBookletCount++;
+    const row=recalcRowWithBooklet({...original,no:no&&no!=="0"?no:original.no,name:rowNameValue(i,original)||original.name},chosenBook||original.booklet,exam);
+    let st=state.students?.[row.no],resultKey=row.no,modeStudent="student";
+    if(st&&classIds.includes(st.classId)){matched++}else{
+      const action=document.querySelector(`.unknownAction[data-i="${i}"]`)?.value||"ignore",manualName=(rowNameValue(i,row)||row.name||"MİSAFİR ÖĞRENCİ").toLocaleUpperCase("tr-TR");
+      if(action==="ignore"){excluded.push({no:row.no,name:manualName,booklet:row.booklet||"",reason:st?"Sınıf dışı":"Sistemde yok"});continue}
+      if(action==="student"){
+        if(!row.no||row.no==="0"){errors.push(`${i+1}. satır: Normal öğrenci kaydı için öğrenci no zorunlu.`);continue}
+        const classId=classIds[0],c=state.classes[classId],old=state.students?.[row.no],data={no:row.no,name:manualName,schoolId,classId,className:c.name,parentPhone:old?.parentPhone||"",createdAt:old?.createdAt||now(),updatedAt:now()};
+        studentsToSave.push({no:row.no,data});st=data;addedStudentCount++;
+      }else{modeStudent="guest";resultKey=`guest_${row.no}_${i}`;st={no:row.no,name:manualName,schoolId,classId:"",className:"Misafir",parentPhone:""};guestCount++}
+    }
+    let uniqueKey=resultKey,n=2;while(results[uniqueKey])uniqueKey=`${resultKey}_${n++}`;
+    const sc=calcScore(row,exam);if(!row.answers||!answerKeyForResult(exam,{...row,booklet:row.booklet}))missingDetails++;
+    results[uniqueKey]={resultKey:uniqueKey,studentNo:row.no,studentName:st.name,schoolId,schoolName:getSchoolName(schoolId),classId:st.classId||"",className:st.className||"Misafir",mode:modeStudent,booklet:row.booklet||"",total:row.total||exam.totalQuestions,correct:row.correct,wrong:row.wrong,blank:row.blank,net:exam.showNet?sc.net:null,score:exam.showScore?sc.score:null,answers:row.answers||"",note:row.note||"",parentPhone:st.parentPhone||"",createdAt:now()};
+  }
+  exam.excluded=excluded;exam.importedCount=Object.keys(results).length;exam.excludedCount=excluded.length;
+  return{exam,results,studentsToSave,summary:{matched,guestCount,addedStudentCount,excludedCount:excluded.length,resultCount:Object.keys(results).length,missingDetails,totalRows:examRows.length,totalQuestions,manualNoCount,manualBookletCount,errors}};
+};
+saveReviewHtml=function(payload){
+  const s=payload.summary,warnings=[],oks=[],examMode=payload.exam.answerKeyMode||inferAnswerKeyMode(payload.exam);
+  if(s.resultCount>0)oks.push(`${s.resultCount} sonuç kayda hazır.`);if(s.matched>0)oks.push(`${s.matched} öğrenci sistemdeki sınıfla eşleşti.`);if(s.manualNoCount>0)oks.push(`${s.manualNoCount} öğrencinin no bilgisi öğretmen tarafından girildi.`);if(s.manualBookletCount>0)oks.push(`${s.manualBookletCount} öğrencinin kitapçığı öğretmen tarafından seçildi.`);if(s.totalQuestions>0)oks.push(`${s.totalQuestions} soru üzerinden hesaplama yapılacak.`);oks.push(`Cevap anahtarı düzeni: ${answerKeyModeLabel(examMode)}.`);
+  if(s.excludedCount>0)warnings.push(`${s.excludedCount} satır rapora alınmayacak.`);if(s.guestCount>0)warnings.push(`${s.guestCount} öğrenci misafir olarak kaydedilecek.`);if(s.addedStudentCount>0)warnings.push(`${s.addedStudentCount} öğrenci normal öğrenci kaydına eklenecek.`);if(s.missingDetails>0)warnings.push(`${s.missingDetails} kayıtta optik detay/cevap anahtarı eksik olabilir.`);if(!payload.exam.answerKey&&!answerKeyCount(payload.exam))warnings.push("Cevap anahtarı oluşturulmadı.");
+  const status=warnings.length?"KONTROL GEREKİYOR":"TÜM KONTROLLER OLUMLU";
+  return `<div class="review-item ${warnings.length?"warn":"ok"}"><b>${status}</b><br><span>${warnings.length?"Aşağıdaki uyarıları kontrol ederek kaydedebilirsiniz.":"Tamam derseniz sınav kaydedilir ve Sınav Oku alanı sıfırlanır."}</span></div><div class="save-review-grid"><div class="save-review-card"><span>TXT SATIRI</span><b>${s.totalRows}</b></div><div class="save-review-card"><span>KAYDEDİLECEK SONUÇ</span><b>${s.resultCount}</b></div><div class="save-review-card"><span>EŞLEŞEN</span><b>${s.matched}</b></div><div class="save-review-card"><span>NO GİRİLEN</span><b>${s.manualNoCount}</b></div><div class="save-review-card"><span>KİTAPÇIK SEÇİLEN</span><b>${s.manualBookletCount}</b></div><div class="save-review-card"><span>DIŞARIDA KALAN</span><b>${s.excludedCount}</b></div><div class="save-review-card"><span>MİSAFİR</span><b>${s.guestCount}</b></div><div class="save-review-card"><span>ÖĞRENCİYE EKLENECEK</span><b>${s.addedStudentCount}</b></div></div><div class="review-list">${oks.map(x=>`<div class="review-item ok">${esc(x)}</div>`).join("")}${warnings.map(x=>`<div class="review-item warn">${esc(x)}</div>`).join("")}</div>`;
+};
+function initMultiAnswerKeyUi(){
+  const q=$("examQuestionCount");
+  if(q&&!q.dataset.multiKeyBound){
+    q.dataset.multiKeyBound="1";
+    q.addEventListener("input",()=>{
+      if(isAppendMode())return;
+      const count=Number(q.value||0),cfg=manualDraftKeyConfig(),keyCount=answerKeyQuestionCount(cfg);
+      if(keyCount&&count!==keyCount){
+        draftAnswerKey="";draftAnswerKeys={};draftAnswerKeyMode="single";
+        importedExamMeta={...(importedExamMeta||{}),answerKey:"",answerKeys:{},questionCount:count,totalQuestions:count};
+        clearCalculatedRowsForKeyChange(count);renderExamPreview();renderAnswerKeyStatus();
+      }
+    });
+  }
+}
 
 
 /* === GELİŞMİŞ RAPOR FİLTRELEME, SIRALAMA VE PDF === */
@@ -1308,6 +1550,7 @@ function initAdvancedReportUi(){
 function bind(){$$('.tab').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));$("activeSchoolSelect").onchange=e=>{activeSchoolId=e.target.value;reportIsOpen=false;localStorage.setItem("optikokuma_active_school",activeSchoolId);renderAll()};$("addSchoolBtn").onclick=addSchool;$("addClassesBtn").onclick=addClasses;$("saveStudentBtn").onclick=saveStudentFromForm;$("clearStudentFormBtn").onclick=clearStudentForm;$("studentClassFilter").onchange=renderStudentsTable;$("studentSearch").oninput=renderStudentsTable;$("selectAllStudents").onclick=()=>{$$('.studentCheck').forEach(c=>{c.checked=true;selectedStudentNos.add(c.value)})};$("clearStudentSelection").onclick=()=>{selectedStudentNos.clear();renderStudentsTable()};$("deleteSelectedStudents").onclick=deleteSelectedStudents;$("loadSheetBtn").onclick=loadSheet;$("bulkSelectAll").onclick=()=>{bulkRows.forEach(x=>x.selected=true);renderBulk()};$("bulkClearSelection").onclick=()=>{bulkRows.forEach(x=>x.selected=false);renderBulk()};$("bulkRemoveSelected").onclick=()=>{bulkRows=bulkRows.filter(x=>!x.selected);renderBulk()};$("bulkSaveSelected").onclick=saveBulk;$("examSchool").onchange=()=>renderExamArea(false);$("examSubjectGroup").onchange=()=>renderExamArea(true);$("examSubject").onchange=renderExamPreview;$("examManualSubject").oninput=renderExamPreview;$("examResultMode").onchange=updateResultOptions;$("examScoreBase").oninput=renderExamPreview;["examNetWrongCount","examNetCorrectDeduct"].forEach(id=>{const el=$(id);if(el)el.oninput=renderExamPreview});$("readExamTxt").onclick=readExamTxt;$("editAnswerKeyBtn").onclick=()=>openAnswerKeyModal();$("examQuestionCount").oninput=()=>{if(isAppendMode())return;const q=Number($("examQuestionCount").value||0);if(draftAnswerKey&&q!==draftAnswerKey.length){draftAnswerKey="";importedExamMeta={...(importedExamMeta||{}),answerKey:"",answerKeys:{},questionCount:q,totalQuestions:q};clearCalculatedRowsForKeyChange(q);renderExamPreview()}renderAnswerKeyStatus()};$("saveExamBtn").onclick=saveExam;$("reportSchool").onchange=()=>renderReports(false);$("loadReportBtn").onclick=async()=>{const exam=state.exams?.[$("reportExam")?.value||activeExamId];if(!exam)return toast("Sınav seçin.");const outputExam=await requireReportOutputExam(exam);if(!outputExam)return;openReport()};$("closeReportBtn").onclick=closeReport;$("deleteExamBtn").onclick=deleteExam;$("reportSelectAll").onclick=()=>{$$('.reportCheck').forEach(c=>{c.checked=true;reportSelected.add(c.value)})};$("reportClearSelection").onclick=()=>{reportSelected.clear();if(reportIsOpen)openReport()};$("whatsSelected").onclick=()=>whatsappText("selected");$("whatsAll").onclick=()=>whatsappText("all");const copyWhatsBtn=$("copyWhats");if(copyWhatsBtn)copyWhatsBtn.onclick=copyWhatsappOutput;$("cardSchool").onchange=()=>renderStudentCard(false);$("cardClass").onchange=()=>renderStudentCard(true);$("openStudentCard").onclick=openStudentCard;$("closeStudentCard").onclick=closeStudentCardView;$("exportJsonBtn").onclick=exportJson;$("guideDownloadBtn").onclick=downloadGuide;$("importJsonBtn").onclick=()=>$("jsonImportFile").click();$("jsonImportFile").onchange=importJsonFile;$("clearAllBtn").onclick=clearAll;document.addEventListener("change",e=>{if(e.target.classList.contains("examClassCheck"))renderExamPreview()})}
 bind();
 initExtraUi();
+initMultiAnswerKeyUi();
 initAdvancedReportUi();
 onValue(r(),snap=>{state={schools:{},classes:{},students:{},exams:{},examResults:{},settings:{},...(snap.val()||{})};setConnected(true,"Firebase bağlı");renderAll()},err=>{setConnected(false,"Firebase hata");toast(err.message||"Firebase bağlantı hatası")});
 
